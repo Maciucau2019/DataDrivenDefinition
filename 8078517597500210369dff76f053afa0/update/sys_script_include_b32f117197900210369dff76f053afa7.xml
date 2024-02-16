@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.CMDBBatchSync</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description/>
+        <name>CMDBBatchSync</name>
+        <script><![CDATA[var CMDBBatchSync = Class.create();
+CMDBBatchSync.TABLE = 'u_data_driven_definition';
+CMDBBatchSync.PROPERTIES = {
+    BATCHSIZE: 'batchsize.data.driven',
+    ENABLE_PUSHING: 'enable.pushing',
+    TARGET_INSTANCE: 'target.instance',
+    PUSHING_CREDENTIAL_ID: 'pushing.credential.id'
+};
+CMDBBatchSync.prototype = {
+        initialize: function() {},
+        /**
+         * Process and push data from the source instance to the target instance based on data driven definition table  
+         */
+        pushData: function() {
+            if (this.canPush()) {
+                var batchSize = gs.getProperty(CMDBBatchSync.PROPERTIES.BATCHSIZE);
+                var batch = [];
+                var tableGR = new GlideRecord(CMDBBatchSync.TABLE);
+                tableGR.addActiveQuery();
+                tableGR.orderByDesc('u_order');
+                tableGR.query();
+
+                while (tableGR.next()) {
+                    try {
+                        var cmdbTable = JSON.parse(tableGR.getValue('u_configuration'));
+                        for (obj in cmdbTable) {
+                            var sourTable = cmdbTable[obj]['sourceTable'];
+                            gs.log(sourTable);
+                            gs.log(JSON.stringify(cmdbTable));
+                            var refTables = [];
+                            for (var keys in cmdbTable[obj]) {
+                                if (keys.startsWith('refTable')) {
+                                    refTables.push(cmdbTable[obj][keys]);
+                                    gs.log("Reference field is " + cmdbTable[obj][keys]);
+                                }
+
+                            }
+                            var searchGR = new GlideRecord(sourTable);
+                            searchGR.query();
+                            while (searchGR.next()) {
+                                this.mainVerification(searchGR, sourTable, refTables);
+                            }
+                        }
+                    } catch (e) {
+                        gs.error(e);
+                    }
+                }
+            }
+        },
+        /**
+         * Verify if data pushing is enabled
+         * returns {boolean} true if pushing is enables otherwise false
+         */
+        canPush: function() {
+            return gs.getProperty(CMDBBatchSync.PROPERTIES.ENABLE_PUSHING) == 'true';
+        },
+        /**
+         * Create the payload for the cmdb records to be pushed to the target instance
+         * cmdbGR {GlideRecord} represents CMDB record
+         * cmdbClass {String} represents the name of the cmdb class
+         * returns {Object} payload Object with coresponding fields values
+         */
+        createPayload: function(cmdbGR, cmdbClass) {
+            var payload = {};
+            var dictionaryGR = new GlideRecord('sys_dictionary');
+            dictionaryGR.addQuery('name', cmdbClass);
+            dictionaryGR.query();
+            while (dictionaryGR.next()) {
+                var fieldName = dictionaryGR.getValue('element');
+                if (cmdbGR.isValidField(fieldName)) {
+                    var fieldValue = cmdbGR.getValue(fieldName);
+                    payload[fieldName] = fieldValue;
+                }
+            }
+            payload['correlation_id'] = cmdbGR.getUniqueValue();
+            return payload;
+        },
+            /**
+             * Create array of all reference fields for the cmdb class
+             * cmdbClass {String} represents the name of the cmdb class
+             * returns {Array} array of reference field names
+             */
+            createRefeArray: function(cmdbClass, refTables, instanceGR) {
+                    var referenceArray = [];
+                    var dictionaryGR = new GlideRecord('sys_dictionary');
+                    dictionaryGR.addQuery('name', cmdbClass);
+                    dictionaryGR.query();
+                    while (dictionaryGR.next()) {
+                        var fieldType = dictionaryGR.getDisplayValue('internal_type');
+                        var fieldName = dictionaryGR.getValue('element');
+                        if (fieldType == "Reference" && refTables.includes(instanceGR[fieldName].getReferenceTable())) {
+                            referenceArray.push(fieldName);
+                        }
+                        //gs.log("Reference array is " + JSON.stringify(referenceArray));
+                    }
+                    return referenceArray;
+
+                },
+                /**
+                 * 
+                 * Make the REST Api call for a specific CMDB record
+                 * instanceGR {GlideRecord} represents CMDB record
+                 * cmdbClass {String} represents the name of the cmdb class
+                 * 
+                 */
+                syncData: function(instanceGR, cmdbClass, refTables) {
+                    try {
+                        var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + "/" + instanceGR.getUniqueValue();
+                        var payload = this.createPayload(instanceGR, cmdbClass);
+                        var httpsStatus = this.constructRESTCall(url, 'PUT', instanceGR, cmdbClass, payload);
+                        var referenceArray = this.createRefeArray(cmdbClass, refTables, instanceGR);
+                        gs.log(JSON.stringify(referenceArray), "", 2);
+                        this.syncRefData(referenceArray, instanceGR, cmdbClass, refTables);
+                    } catch (e) {
+                        gs.error(e);
+                    }
+                },
+                /** 
+                 * Make the REST Api calls for the referenced records from cmdb instance
+                 * referenceArray {Array} array of reference field names
+                 * instanceGR {GlideRecord} represents CMDB record
+                 */
+                syncRefData: function(referenceArray, instanceGR, cmdbClass, refTables) {
+                    try {
+                        for (var i = 0; i < referenceArray.length; i++) {
+                            var reqObj = {};
+                            var field = referenceArray[i];
+                            var refRecord = instanceGR[field].getRefRecord();
+                            if (refRecord.isValidRecord()) {
+                                var refTable = instanceGR[field].getReferenceTable();
+                                for (var keys in refRecord) {
+                                    var fieldValue = refRecord.getValue(keys);
+                                    reqObj[keys] = fieldValue;
+                                }
+                                var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + refRecord.getUniqueValue();
+                                var httpsStatus = this.constructRESTCall(url, 'GET', instanceGR, cmdbClass, reqObj);
+                                if (httpsStatus == 200) {
+                                    this.constructRESTCall(url, 'PUT', instanceGR, cmdbClass, reqObj);
+                                } else {
+                                    url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
+                                    this.constructRESTCall(url, 'POST', instanceGR, cmdbClass, reqObj);
+                                }
+                            }
+                        }
+                        var nestedReferenceArray = this.createRefeArray(refTable, refTables, refRecord);
+                        if (nestedReferenceArray.length) {
+                            //referenceArray = this.createRefeArray(refTable, refTables, refRecord);
+                            gs.log(JSON.stringify(nestedReferenceArray));
+                            this.syncRefData(nestedReferenceArray, refRecord, refTable, refTables);
+                        }
+                    } catch (e) {
+                        gs.error(e);
+                    }
+                },
+
+                postData: function(instanceGR, cmdbClass) {
+                    try {
+                        var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass;
+                        var payload = this.createPayload(instanceGR, cmdbClass);
+                        var httpsStatus = this.constructRESTCall(url, 'POST', instanceGR, cmdbClass, payload);
+                    } catch (e) {
+                        gs.error(e);
+                    }
+                },
+
+                mainVerification: function(instanceGR, cmdbClass, refTables) {
+                    try {
+                        var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=correlation_id%' + instanceGR.getUniqueValue();
+                        gs.log("GET url is " + url);
+                        var payload = this.createPayload(instanceGR, cmdbClass);
+                        var httpsStatus = this.constructRESTCall(url, 'GET', instanceGR, cmdbClass, payload);
+                        if (httpsStatus == 200) {
+                            this.syncData(instanceGR, cmdbClass, refTables);
+                        } else {
+                            this.postData(instanceGR, cmdbClass);
+                        }
+                    } catch (e) {
+                        gs.error(e);
+                    }
+                },
+
+                constructRESTCall: function(url, method, instanceGR, cmdbClass, payload) {
+                    var provider = new sn_cc.StandardCredentialsProvider();
+                    var credentials = provider.getCredentialByID(gs.getProperty(CMDBBatchSync.PROPERTIES.PUSHING_CREDENTIAL_ID));
+                    var user = credentials.getAttribute("user_name");
+                    var pass = credentials.getAttribute("password");
+                    var request = new sn_ws.RESTMessageV2();
+                    request.setBasicAuth(user, pass);
+                    request.setRequestHeader("Accept", "application/json");
+                    request.setRequestHeader('Content-Type', 'application/json');
+                    request.setEndpoint(url);
+                    request.setHttpMethod(method);
+                    if (method == 'PUT' || method == 'POST') {
+                        request.setRequestBody(JSON.stringify(payload));
+                    }
+                    response = request.execute();
+                    var responseBody = response.getBody();
+                    var httpsStatus = response.getStatusCode();
+                    gs.log("https status:" + httpsStatus);
+
+                    return httpsStatus;
+                },
+                type: 'CMDBBatchSync'
+        };]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-02-12 08:10:20</sys_created_on>
+        <sys_id>b32f117197900210369dff76f053afa7</sys_id>
+        <sys_mod_count>151</sys_mod_count>
+        <sys_name>CMDBBatchSync</sys_name>
+        <sys_package display_value="Data Driven Definition" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Data Driven Definition">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_update_name>sys_script_include_b32f117197900210369dff76f053afa7</sys_update_name>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-02-15 20:37:48</sys_updated_on>
+    </sys_script_include>
+</record_update>

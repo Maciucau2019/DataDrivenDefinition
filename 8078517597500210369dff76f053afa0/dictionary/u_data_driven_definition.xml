@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="875a9d3997500210369dff76f053af32" label="Data Driven Definition" max_length="40" name="u_data_driven_definition" type="collection">
+        <element label="Active" max_length="40" name="u_active" type="boolean"/>
+        <element default="[{&quot;cmdbClass&quot;:&quot;&quot;}]" label="Configuration" max_length="10000" name="u_configuration" type="string"/>
+        <element label="Description" max_length="5000" name="u_description" type="string"/>
+        <element label="Name" max_length="40" name="u_name" type="string"/>
+        <element default="1" label="Order" max_length="20" name="u_order" type="integer"/>
+    </element>
+</database>

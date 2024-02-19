@@ -16,10 +16,10 @@ CMDBBatchSync.PROPERTIES = {
     PUSHING_CREDENTIAL_ID: 'pushing.credential.id'
 };
 CMDBBatchSync.prototype = {
-    // sysIdMappings: {},
 
     initialize: function() {
-        // this.sysIdMappings = {};
+        this.payload;
+		this.refPayload;
     },
     /**
      * Process and push data from the source instance to the target instance based on data driven definition table  
@@ -68,13 +68,13 @@ CMDBBatchSync.prototype = {
         return gs.getProperty(CMDBBatchSync.PROPERTIES.ENABLE_PUSHING) == 'true';
     },
     /**
-     * Create the payload for the cmdb records to be pushed to the target instance
+     * Create the cmdbPayload for the cmdb records to be pushed to the target instance
      * cmdbGR {GlideRecord} represents CMDB record
      * cmdbClass {String} represents the name of the cmdb class
-     * returns {Object} payload Object with coresponding fields values
+     * returns {Object} cmdbPayload Object with coresponding fields values
      */
     createPayload: function(cmdbGR, cmdbClass) {
-        var payload = {};
+        var cmdbPayload = {};
         var dictionaryGR = new GlideRecord('sys_dictionary');
         dictionaryGR.addQuery('name', cmdbClass);
         dictionaryGR.query();
@@ -82,18 +82,11 @@ CMDBBatchSync.prototype = {
             var fieldName = dictionaryGR.getValue('element');
             if (cmdbGR.isValidField(fieldName)) {
                 var fieldValue = cmdbGR.getValue(fieldName);
-                payload[fieldName] = fieldValue;
+                cmdbPayload[fieldName] = fieldValue;
             }
-            //     if (cmdbGR.isValidField(fieldName)) {
-            //        if (this.sysIdMappings[cmdbGR.getValue(fieldName)]) {
-            //            payload[fieldName] = this.sysIdMappings[cmdbGR.getValue(fieldName)];
-            //        } else {
-            //            payload[fieldName] = cmdbGR.getValue(fieldName);
-            //        }
-            //    }
         }
-        payload['correlation_id'] = cmdbGR.getUniqueValue();
-        return payload;
+        cmdbPayload['correlation_id'] = cmdbGR.getUniqueValue();
+        return cmdbPayload;
     },
     /**
      * Create array of all reference fields for the cmdb class
@@ -111,7 +104,6 @@ CMDBBatchSync.prototype = {
             if (fieldType == "Reference" && refTables.includes(instanceGR[fieldName].getReferenceTable())) {
                 referenceArray.push(fieldName);
             }
-            //gs.log("Reference array is " + JSON.stringify(referenceArray));
         }
         return referenceArray;
 
@@ -126,8 +118,7 @@ CMDBBatchSync.prototype = {
     syncData: function(instanceGR, cmdbClass, refTables) {
         try {
             var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + "/" + instanceGR.getUniqueValue();
-            var payload = this.createPayload(instanceGR, cmdbClass);
-            var httpsStatus = this.constructRESTCall(url, 'PUT', instanceGR, cmdbClass, payload);
+            var httpsStatus = this.constructRESTCall(url, 'PUT', instanceGR, cmdbClass);
             var referenceArray = this.createRefeArray(cmdbClass, refTables, instanceGR);
             gs.log(JSON.stringify(referenceArray), "", 2);
             this.syncRefData(referenceArray, instanceGR, cmdbClass, refTables);
@@ -152,24 +143,30 @@ CMDBBatchSync.prototype = {
                         var fieldValue = refRecord.getValue(keys);
                         reqObj[keys] = fieldValue;
                     }
-                    var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + refRecord.getUniqueValue();
-                    var returnObj = this.constructRESTCall(url, 'GET', instanceGR, cmdbClass, reqObj);
+					this.refPayload = reqObj;
+					var name = encodeURIComponent(refRecord.getValue('name'));
+                    var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '?sysparm_query=name%3D' + name;
+					gs.log("URL ref get: " +url);
+					var returnObj = this.constructRESTCall(url, 'GET', refRecord, refTable);
                     var httpsStatus = returnObj['httpsStatus'];
-                    gs.log(httpsStatus);
-                    if (httpsStatus == 200) {
-                        this.constructRESTCall(url, 'PUT', instanceGR, cmdbClass, reqObj);
+					var responseBody = returnObj['responseBody'];
+					gs.log("responsebody.length: " + responseBody.length);
+                    if (httpsStatus == 200 && responseBody.length == 0 || httpsStatus == 201 && responseBody.length == 0) {
+						putUrl = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '/' + instanceGR.getUniqueValue();
+                        this.constructRESTCall(putUrl, 'PUT', this.refPayload, cmdbClass);
+						gs.log("URL ref PUT: " + putUrl);
                     } else {
-                        url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
-                        var postResult = this.constructRESTCall(url, 'POST', instanceGR, refTable, reqObj);
-                        gs.log("POST successful, sys_id: " + postResult.sys_id);
-                        // instanceGR.setValue(field, postResult.sys_id);
-                        // instanceGR.update();
+                        var postUrl = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
+                        var postResult = this.constructRESTCall(postUrl, 'POST', refRecord, refTable);
+
+                        this.payload[field] = postResult.sys_id;
+                        var instanceUrl = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '/' + instanceGR.getUniqueValue();
+                        this.constructRESTCall(instanceUrl, 'PUT', this.refPayload, cmdbClass);
                     }
                 }
             }
             var nestedReferenceArray = this.createRefeArray(refTable, refTables, refRecord);
             if (nestedReferenceArray.length) {
-                //referenceArray = this.createRefeArray(refTable, refTables, refRecord);
                 gs.log(JSON.stringify(nestedReferenceArray));
                 this.syncRefData(nestedReferenceArray, refRecord, refTable, refTables);
             }
@@ -181,8 +178,7 @@ CMDBBatchSync.prototype = {
     postData: function(instanceGR, cmdbClass) {
         try {
             var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass;
-            var payload = this.createPayload(instanceGR, cmdbClass);
-            var httpsStatus = this.constructRESTCall(url, 'POST', instanceGR, cmdbClass, payload);
+            var httpsStatus = this.constructRESTCall(url, 'POST', instanceGR, cmdbClass);
         } catch (e) {
             gs.error(e);
         }
@@ -192,8 +188,8 @@ CMDBBatchSync.prototype = {
         try {
             var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=correlation_id%' + instanceGR.getUniqueValue();
             gs.log("GET url is " + url);
-            var payload = this.createPayload(instanceGR, cmdbClass);
-            var returnObj = this.constructRESTCall(url, 'GET', instanceGR, cmdbClass, payload);
+            this.payload = this.createPayload(instanceGR, cmdbClass);
+            var returnObj = this.constructRESTCall(url, 'GET', instanceGR, cmdbClass);
             var httpsStatus = returnObj.httpsStatus;
             if (httpsStatus == 200) {
                 this.syncData(instanceGR, cmdbClass, refTables);
@@ -205,7 +201,7 @@ CMDBBatchSync.prototype = {
         }
     },
 
-    constructRESTCall: function(url, method, instanceGR, cmdbClass, payload) {
+    constructRESTCall: function(url, method, instanceGR, cmdbClass) {
         var provider = new sn_cc.StandardCredentialsProvider();
         var credentials = provider.getCredentialByID(gs.getProperty(CMDBBatchSync.PROPERTIES.PUSHING_CREDENTIAL_ID));
         var user = credentials.getAttribute("user_name");
@@ -214,26 +210,29 @@ CMDBBatchSync.prototype = {
         request.setBasicAuth(user, pass);
         request.setRequestHeader("Accept", "application/json");
         request.setRequestHeader('Content-Type', 'application/json');
-        request.setEndpoint(url);
+        //request.setEndpoint(url);
         request.setHttpMethod(method);
         gs.log(method);
-        if (method == 'PUT' || method == 'POST') {
-            request.setRequestBody(JSON.stringify(payload));
-        }
-        if (method == 'GET' && cmdbClass.includes('cmdb')) {
+        if ((method == 'PUT' && cmdbClass.includes('cmdb_ci')) || (method == 'POST' && cmdbClass.includes('cmdb_ci'))) {
+            request.setRequestBody(JSON.stringify(this.payload));
+        }else if(method == 'PUT' || method == 'POST') {
+			request.setRequestBody(JSON.stringify(this.refPayload));
+		}
+        if (method == 'GET' && cmdbClass.includes('cmdb_ci')) {
             url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=correlation_id%' + instanceGR.getUniqueValue();
-        } else {
+        } else if (method == 'GET') {
             var name = encodeURIComponent(instanceGR.getValue('name'));
             url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=name%3D' + name;
-            gs.log("Get URL for reference is " + url);
         }
+		request.setEndpoint(url);
         response = request.execute();
         var responseBody = response.getBody();
         var httpsStatus = response.getStatusCode();
-
+		gs.log('HTTP Status Code: ' + httpsStatus + ", Method = " + method + ", URL = " + url);
         var returnObj = {
             httpsStatus: httpsStatus,
-            sys_id: null
+            sys_id: null,
+			responseBody: responseBody
         };
         if (method == 'POST') {
             try {
@@ -241,7 +240,6 @@ CMDBBatchSync.prototype = {
                 gs.log("Response obj is " + JSON.stringify(responseObj), "", 2);
                 returnObj.sys_id = responseObj['result']['sys_id'];
                 gs.log("Sys_id for created/updated record is: " + returnObj.sys_id);
-                this.sysIdMappings[instanceGR.getUniqueValue()] = returnObj.sys_id;
             } catch (e) {
                 gs.error(e);
             }
@@ -254,13 +252,13 @@ CMDBBatchSync.prototype = {
         <sys_created_by>magda.gursca</sys_created_by>
         <sys_created_on>2024-02-12 08:10:20</sys_created_on>
         <sys_id>b32f117197900210369dff76f053afa7</sys_id>
-        <sys_mod_count>205</sys_mod_count>
+        <sys_mod_count>300</sys_mod_count>
         <sys_name>CMDBBatchSync</sys_name>
         <sys_package display_value="Data Driven Definition" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_policy/>
         <sys_scope display_value="Data Driven Definition">8078517597500210369dff76f053afa0</sys_scope>
         <sys_update_name>sys_script_include_b32f117197900210369dff76f053afa7</sys_update_name>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-02-16 22:08:15</sys_updated_on>
+        <sys_updated_on>2024-02-19 16:32:25</sys_updated_on>
     </sys_script_include>
 </record_update>

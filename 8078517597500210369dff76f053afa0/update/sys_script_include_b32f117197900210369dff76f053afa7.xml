@@ -131,14 +131,14 @@ CMDBBatchSync.prototype = {
             var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + "/" + instanceGR.getUniqueValue();
             var referenceArray = this.createRefeArray(cmdbClass, refTables, instanceGR);
             this.setlogging('info', "Reference Fields: " + JSON.stringify(referenceArray, "", 2));
-            var currentPayload = this.syncRefData(referenceArray, instanceGR, cmdbClass, refTables, 0, []);
+            var currentPayload = this.syncRefData(referenceArray, instanceGR, cmdbClass, refTables, 10);
             this.setlogging('info', "Current Payload is: " + JSON.stringify(currentPayload, "", 2));
             if (currentPayload) {
                 for (key in currentPayload) {
                     this.payload[key] = currentPayload[key];
                 }
             }
-            gs.log("This payload for put call for cmmdb_ci is" + JSON.stringify(this.payload, "", 2));
+			this.setlogging('info', "This payload for put call for cmmdb_ci is" + JSON.stringify(this.payload, "", 2));
             this.executeRESTCall(url, 'PUT', this.payload, cmdbClass);
         } catch (e) {
             gs.error(e);
@@ -158,14 +158,13 @@ CMDBBatchSync.prototype = {
 
         this.setlogging('info', "Starting syncRefData with nested level: " + nestedLevel);
         try {
-            var localTargetID="";
+            var localTargetID = "";
             var localPayload = {};
             for (var i = 0; i < referenceArray.length; i++) {
                 var referencePayload = {};
                 var field = referenceArray[i];
                 var refRecord = instanceGR[field].getRefRecord();
                 if (refRecord.isValidRecord()) {
-					gs.log("Ref record current is valid");
                     var refTable = instanceGR[field].getReferenceTable();
                     for (var keys in refRecord) {
                         var fieldValue = refRecord.getValue(keys);
@@ -177,31 +176,30 @@ CMDBBatchSync.prototype = {
                     var returnObj = this.executeRESTCall(url, 'GET', refRecord, refTable);
                     this.setlogging('info', "Return obj for reference record" + JSON.stringify(returnObj));
                     this.setlogging('info', "URL for get:" + url);
-					if (returnObj == null) {
+                        if (returnObj == null) {
                         var postUrl = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
                         var postResponse = this.executeRESTCall(postUrl, 'POST', refRecord, refTable);
-						this.setlogging('info', 'Post response for reference table' + JSON.stringify(postResponse) + ',table:' + refTable);
+                        this.setlogging('info', "Post response for reference table" + JSON.stringify(postResponse) + ",table:" + refTable);
                         this.setlogging('info', "New POST sys_id is: " + postResponse.responseBody.result.sys_id);
                         //this.payload[field] = postResponse.responseBody.result.sys_id;
                         localPayload[field] = postResponse.responseBody.result.sys_id;
-                        
                     }
-                    if (returnObj) {
+                        if (returnObj) {
                         var putUrl = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + returnObj.responseBody.result[0].sys_id;
                         var putResponse = this.executeRESTCall(putUrl, 'PUT', refRecord, refTable);
-                        localTargetID =returnObj.responseBody.result[0].sys_id;
+                        localTargetID = returnObj.responseBody.result[0].sys_id;
                         //this.payload[field] = localTargetID;
                         localPayload[field] = localTargetID;
                         this.setlogging('info', "New PUT sys_id is: " + returnObj.responseBody.result[0].sys_id);
                     }
-                    if (nestedLevel == this.nestedLevel) {
+                    if (nestedLevel == 0) {
                         this.setlogging('info', 'Current Nested level:' + nestedLevel);
                         return;
                     }
-                    if (nestedLevel < this.nestedLevel) {
+                    if (nestedLevel <= this.nestedLevel) {
                         var nestedReferenceArray = this.createRefeArray(refTable, refTables, refRecord);
                         this.setlogging('info', "Nested Reference Fields: " + JSON.stringify(nestedReferenceArray + "and Nested level is" + nestedLevel));
-                        nestedLevel++;
+                        nestedLevel--;
                         this.syncRefData(nestedReferenceArray, refRecord, refTable, refTables, nestedLevel);
                     }
                     return localPayload;
@@ -219,9 +217,10 @@ CMDBBatchSync.prototype = {
      * @returns {void}
      * 
      */
-    postData: function(instanceGR, cmdbClass) {
+    postData: function(instanceGR, cmdbClass, refTables) {
         try {
             var url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass;
+			this.syncData(instanceGR, cmdbClass, refTables);
             this.executeRESTCall(url, 'POST', this.payload, cmdbClass);
         } catch (e) {
             gs.error(e);
@@ -242,9 +241,8 @@ CMDBBatchSync.prototype = {
             this.payload = this.createPayload(instanceGR, cmdbClass);
             this.setlogging('info', "This.payload for cmdb_ci is:" + JSON.stringify(this.payload, "", 2));
             var returnObj = this.executeRESTCall(url, 'GET', instanceGR, cmdbClass);
-            gs.log("ReturnObj for cmdb_ci after get:" + JSON.stringify(returnObj, "", 2));
             if (returnObj == null) {
-                this.postData(instanceGR, cmdbClass);
+                this.postData(instanceGR, cmdbClass, refTables);
             } else {
                 this.syncData(instanceGR, cmdbClass, refTables);
             }
@@ -277,19 +275,18 @@ CMDBBatchSync.prototype = {
         }
         if (method == 'GET' && cmdbClass.includes('cmdb_ci')) {
             url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=correlation_id%3D' + instanceGR.getUniqueValue();
-            gs.log("URL FOR GET CMDB_CI is " + url);
         } else if (method == 'GET') {
             var name = encodeURIComponent(instanceGR.getValue('name'));
             url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=name%3D' + name;
-			this.setlogging('info',"URL FOR GET REFERENCE RECORD IS" + url);
+            this.setlogging('info', "URL FOR GET REFERENCE RECORD IS" + url);
         }
-		
+
         request.setEndpoint(url);
         var response = request.execute();
         var responseBody = JSON.parse(response.getBody());
         var httpsStatus = response.getStatusCode();
         this.setlogging('info', 'Response body for' + method + ' is' + JSON.stringify(responseBody, "", 2));
-        if (responseBody.result.length == 0) {
+        if (method == 'GET' && responseBody.result.length == 0) {
             return null;
         }
         return {
@@ -330,13 +327,13 @@ CMDBBatchSync.prototype = {
         <sys_created_by>magda.gursca</sys_created_by>
         <sys_created_on>2024-02-12 08:10:20</sys_created_on>
         <sys_id>b32f117197900210369dff76f053afa7</sys_id>
-        <sys_mod_count>500</sys_mod_count>
+        <sys_mod_count>542</sys_mod_count>
         <sys_name>CMDBBatchSync</sys_name>
         <sys_package display_value="Data Driven Definition" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_policy/>
         <sys_scope display_value="Data Driven Definition">8078517597500210369dff76f053afa0</sys_scope>
         <sys_update_name>sys_script_include_b32f117197900210369dff76f053afa7</sys_update_name>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-02-23 14:13:42</sys_updated_on>
+        <sys_updated_on>2024-02-26 19:33:00</sys_updated_on>
     </sys_script_include>
 </record_update>

@@ -4,7 +4,7 @@
         <element default="[{&quot;cmdbClass&quot;:&quot;&quot;}]" label="Configuration" max_length="10000" name="u_configuration" type="string"/>
         <element label="Description" max_length="5000" name="u_description" type="string"/>
         <element label="Name" max_length="40" name="u_name" type="string"/>
-        <element default="2" label="Nested Level" max_length="20" name="u_nested_level" type="integer"/>
+        <element label="Nested Level" max_length="20" name="u_nested_level" type="integer"/>
         <element default="1" label="Order" max_length="20" name="u_order" type="integer"/>
     </element>
 </database>

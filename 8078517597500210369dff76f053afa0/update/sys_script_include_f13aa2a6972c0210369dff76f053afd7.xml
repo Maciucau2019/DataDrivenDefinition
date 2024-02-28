@@ -124,12 +124,14 @@ NestedLVLSync.prototype = {
                         currentNestedLevel++;
                         var refObject = this.createRefeArray(refRecord.getTableName(), refTables, refRecord, currentNestedLevel);
                         var nestedObj = {};
-                        nestedObj[fieldName] = refObject.length > 0 ? refObject : refRecord[fieldName].getDisplayValue();
-                        referenceArray.push(nestedObj);
+                        nestedObj[fieldName] = refObject.length > 0 ? refObject : refRecord[fieldName].getValue();
+                        if (Array.isArray(refObject) && refObject.length > 0 || refRecord[fieldName].getDisplayValue()) {
+                            referenceArray.push(nestedObj);
+                        }
                     }
-                } else {
+                } else if (instanceGR[fieldName].getDisplayValue()) {
                     var fieldObject = {};
-                    fieldObject[fieldName] = instanceGR[fieldName].getDisplayValue();
+                    fieldObject[fieldName] = instanceGR[fieldName].getValue() != '' ? instanceGR[fieldName].getValue() : null;
                     referenceArray.push(fieldObject);
                 }
             }
@@ -137,39 +139,6 @@ NestedLVLSync.prototype = {
         this.setlogging('info', "Nested Reference Fields: " + JSON.stringify(referenceArray, "", 2) + " and Nested level is " + currentNestedLevel);
         return referenceArray;
     },
-    //     var currentNestedLeveL = 0;
-    //     var referenceArray = [];
-    //     do {
-    //         var dictionaryGR = new GlideRecord('sys_dictionary');
-    //         dictionaryGR.addQuery('name', cmdbClass);
-    //         dictionaryGR.query();
-    //         while (dictionaryGR.next()) {
-    //             var objArray = {};
-    //             var fieldType = dictionaryGR.getDisplayValue('internal_type');
-    //             var fieldName = dictionaryGR.getValue('element');
-    //             if (fieldType == "Reference" && refTables.includes(instanceGR[fieldName].getReferenceTable())) {
-    //                 var refRecord = instanceGR[fieldName].getRefRecord();
-    //                 if (refRecord.isValidRecord()) {
-    //                     objArray[fieldName] = refRecord;
-    //                     //referenceArray.push(JSON.stringify(refRecord); 
-    //                     referenceArray.push(objArray);
-    //                     currentNestedLeveL++;
-    //                     cmdbClass = instanceGR[fieldName].getReferenceTable();
-    //                     instanceGR = refRecord;
-    //                 }
-    // 				} else {
-    //                     objArray[fieldName] = instanceGR[fieldName];
-    //                     referenceArray.push(objArray);
-    //                 }
-
-    //         }
-    //     } while (currentNestedLeveL < this.nestedLevel);
-
-
-    //     return referenceArray;
-
-    // },
-
     /**
      * Create the array for reference fields and syncronize data from cmdb_ci and reference records between instances  
      * 
@@ -184,7 +153,7 @@ NestedLVLSync.prototype = {
             var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + "/" + instanceGR.getUniqueValue();
             var referenceArray = this.createRefeArray(cmdbClass, refTables, instanceGR, 0);
             //this.setlogging('info', "Reference Fields: " + JSON.stringify(referenceArray, "", 2));
-            // var currentPayload = this.syncRefData(referenceArray, instanceGR, cmdbClass, refTables, 3);
+            this.syncRefData(referenceArray, instanceGR, cmdbClass, refTables, 0);
             // this.setlogging('info', "Current Payload is: " + JSON.stringify(currentPayload, "", 2));
             // if (currentPayload) {
             //     for (key in currentPayload) {
@@ -209,58 +178,103 @@ NestedLVLSync.prototype = {
      */
     syncRefData: function(referenceArray, instanceGR, cmdbClass, refTables, nestedLevel) {
 
-        // this.setlogging('info', "Starting syncRefData with nested level: " + nestedLevel);
-        try {
-            var localTargetID = "";
-            var localPayload = {};
-            for (var i = 0; i < referenceArray.length; i++) {
-                var referencePayload = {};
-                var field = referenceArray[i];
-                var refRecord = instanceGR[field].getRefRecord();
-                if (refRecord.isValidRecord()) {
-                    var refTable = instanceGR[field].getReferenceTable();
-                    for (var keys in refRecord) {
-                        var fieldValue = refRecord.getValue(keys);
-                        referencePayload[keys] = fieldValue;
-                    }
-                    this.refPayload = referencePayload;
+		var localPayload = {};
+        var currentLevelFields = [];
+        var previousLevelFields = [];
+
+        for (var i = 0; i < referenceArray.length; i++) {
+            for (var key in referenceArray[i]) {
+                if (Array.isArray(referenceArray[i][key])) {
+
+                    var refTable = referenceArray[i][key]['sys_class_name'];
+					gs.log('referenceArray[i][key][sys_class_name]' + referenceArray[i][key]['sys_class_name']);
+					gs.log('refTable: ' + refTable);
+                    var refRecord = referenceArray[i][key];
+					gs.log('refRecord: ' + JSON.stringify(refRecord));
+
                     var name = encodeURIComponent(refRecord.getValue('name'));
                     var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '?sysparm_query=name%3D' + name;
                     var returnObj = this.executeRESTCall(url, 'GET', refRecord, refTable);
-                    // this.setlogging('info', "Return obj for reference record" + JSON.stringify(returnObj));
-                    // this.setlogging('info', "URL for get:" + url);
+                    this.setlogging('info', "Return obj for reference record" + JSON.stringify(returnObj));
+                    this.setlogging('info', "URL for get:" + url);
                     if (returnObj == null) {
                         var postUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
                         var postResponse = this.executeRESTCall(postUrl, 'POST', refRecord, refTable);
-                        //  this.setlogging('info', "Post response for reference table" + JSON.stringify(postResponse) + ",table:" + refTable);
-                        //  this.setlogging('info', "New POST sys_id is: " + postResponse.responseBody.result.sys_id);
-                        //this.payload[field] = postResponse.responseBody.result.sys_id;
+                        this.setlogging('info', "Post response for reference table" + JSON.stringify(postResponse) + ",table:" + refTable);
+                        this.setlogging('info', "New POST sys_id is: " + postResponse.responseBody.result.sys_id);
                         localPayload[field] = postResponse.responseBody.result.sys_id;
                     }
                     if (returnObj) {
                         var putUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + returnObj.responseBody.result[0].sys_id;
                         var putResponse = this.executeRESTCall(putUrl, 'PUT', refRecord, refTable);
-                        localTargetID = returnObj.responseBody.result[0].sys_id;
-                        //this.payload[field] = localTargetID;
-                        localPayload[field] = localTargetID;
-                        // this.setlogging('info', "New PUT sys_id is: " + returnObj.responseBody.result[0].sys_id);
+                        localPayload[field] = returnObj.responseBody.result[0].sys_id;
+                        this.setlogging('info', "New PUT sys_id is: " + returnObj.responseBody.result[0].sys_id);
                     }
-                    // if (nestedLevel == 0) {
-                    //     this.setlogging('info', 'Current Nested level:' + nestedLevel);
-                    //     return;
-                    // }
-                    // if (nestedLevel <= this.nestedLevel) {
-                    //     var nestedReferenceArray = this.createRefeArray(refTable, refTables, refRecord);
-                    //     this.setlogging('info', "Nested Reference Fields: " + JSON.stringify(nestedReferenceArray + "and Nested level is" + nestedLevel));
-                    //     nestedLevel--;
-                    //     this.syncRefData(nestedReferenceArray, refRecord, refTable, refTables, nestedLevel);
-                    // }
-                    return localPayload;
+                    if (currentLevelFields.length > 0) {
+                        this.setlogging('info', "currentLevelFields: " + JSON.stringify(currentLevelFields, "", 2));
+                        previousLevelFields = currentLevelFields.slice(); // copy the array.
+                        this.setlogging('info', "previousLevelFields: " + JSON.stringify(previousLevelFields, "", 2));
+                        currentLevelFields = [];
+                    }
+                    this.setlogging('info', "Deeper to nestedlevel " + (nestedLevel + 1) + " from field: " + key);
+                    this.syncRefData(referenceArray[i][key], instanceGR, cmdbClass, refTables, nestedLevel + 1);
+                } else {
+                    currentLevelFields.push(referenceArray[i]);
                 }
             }
-        } catch (e) {
-            gs.error(e);
         }
+        // this.setlogging('info', "Starting syncRefData with nested level: " + nestedLevel);
+        //   try {
+        //     var localTargetID = "";
+        //     var localPayload = {};
+        //     for (var i = 0; i < referenceArray.length; i++) {
+        //         var referencePayload = {};
+        //         var field = referenceArray[i];
+        //         var refRecord = instanceGR[field].getRefRecord();
+        //         if (refRecord.isValidRecord()) {
+        //             var refTable = instanceGR[field].getReferenceTable();
+        //             for (var keys in refRecord) {
+        //                 var fieldValue = refRecord.getValue(keys);
+        //                 referencePayload[keys] = fieldValue;
+        //             }
+        //             this.refPayload = referencePayload;
+        //             var name = encodeURIComponent(refRecord.getValue('name'));
+        //             var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '?sysparm_query=name%3D' + name;
+        //             var returnObj = this.executeRESTCall(url, 'GET', refRecord, refTable);
+        //             // this.setlogging('info', "Return obj for reference record" + JSON.stringify(returnObj));
+        //             // this.setlogging('info', "URL for get:" + url);
+        //             if (returnObj == null) {
+        //                 var postUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
+        //                 var postResponse = this.executeRESTCall(postUrl, 'POST', refRecord, refTable);
+        //                 //  this.setlogging('info', "Post response for reference table" + JSON.stringify(postResponse) + ",table:" + refTable);
+        //                 //  this.setlogging('info', "New POST sys_id is: " + postResponse.responseBody.result.sys_id);
+        //                 //this.payload[field] = postResponse.responseBody.result.sys_id;
+        //                 localPayload[field] = postResponse.responseBody.result.sys_id;
+        //             }
+        //             if (returnObj) {
+        //                 var putUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + returnObj.responseBody.result[0].sys_id;
+        //                 var putResponse = this.executeRESTCall(putUrl, 'PUT', refRecord, refTable);
+        //                 localTargetID = returnObj.responseBody.result[0].sys_id;
+        //                 //this.payload[field] = localTargetID;
+        //                 localPayload[field] = localTargetID;
+        //                 // this.setlogging('info', "New PUT sys_id is: " + returnObj.responseBody.result[0].sys_id);
+        //             }
+        //             // if (nestedLevel == 0) {
+        //             //     this.setlogging('info', 'Current Nested level:' + nestedLevel);
+        //             //     return;
+        //             // }
+        //             // if (nestedLevel <= this.nestedLevel) {
+        //             //     var nestedReferenceArray = this.createRefeArray(refTable, refTables, refRecord);
+        //             //     this.setlogging('info', "Nested Reference Fields: " + JSON.stringify(nestedReferenceArray + "and Nested level is" + nestedLevel));
+        //             //     nestedLevel--;
+        //             //     this.syncRefData(nestedReferenceArray, refRecord, refTable, refTables, nestedLevel);
+        //             // }
+        //             return localPayload;
+        //         }
+        //     }
+        // } catch (e) {
+        //     gs.error(e);
+        // }
     },
     /** 
      * Create cmdb_ci record in the target instance
@@ -380,13 +394,13 @@ NestedLVLSync.prototype = {
         <sys_created_by>magda.gursca</sys_created_by>
         <sys_created_on>2024-02-27 07:50:52</sys_created_on>
         <sys_id>f13aa2a6972c0210369dff76f053afd7</sys_id>
-        <sys_mod_count>51</sys_mod_count>
+        <sys_mod_count>114</sys_mod_count>
         <sys_name>NestedLVLSync</sys_name>
         <sys_package display_value="Data Driven Definition" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_policy/>
         <sys_scope display_value="Data Driven Definition">8078517597500210369dff76f053afa0</sys_scope>
         <sys_update_name>sys_script_include_f13aa2a6972c0210369dff76f053afd7</sys_update_name>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-02-27 15:03:46</sys_updated_on>
+        <sys_updated_on>2024-02-28 13:52:56</sys_updated_on>
     </sys_script_include>
 </record_update>

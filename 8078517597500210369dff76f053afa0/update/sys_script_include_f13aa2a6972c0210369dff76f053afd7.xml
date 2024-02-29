@@ -101,10 +101,10 @@ NestedLVLSync.prototype = {
      * @refTables
      * 
      */
-    createRefeArray: function(cmdbClass, refTables, instanceGR, currentNestedLevel) {
+    createRefObject: function(cmdbClass, refTables, instanceGR, currentNestedLevel) {
         this.setlogging('info', "Starting createRefeArray with nested level: " + currentNestedLevel);
 
-        var referenceArray = [];
+        var referenceObject = {};
 
         if (currentNestedLevel >= this.nestedLevel) {
             return;
@@ -121,23 +121,29 @@ NestedLVLSync.prototype = {
                 if (fieldType == "Reference" && refTables.includes(instanceGR[fieldName].getReferenceTable())) {
                     var refRecord = instanceGR[fieldName].getRefRecord();
                     if (refRecord.isValidRecord()) {
+                        var metaObject = {
+                            sys_class_name: refRecord.getTableName(),
+                            nestedLevel: currentNestedLevel,
+                            sourceInstanceSysID: refRecord.getUniqueValue(),
+                            targetInstanceSysID: ""
+                        };
+                        this.setlogging('info', "Meta Object is " + JSON.stringify(metaObject), "", 2);
                         currentNestedLevel++;
-                        var refObject = this.createRefeArray(refRecord.getTableName(), refTables, refRecord, currentNestedLevel);
-                        var nestedObj = {};
-                        nestedObj[fieldName] = refObject.length > 0 ? refObject : refRecord[fieldName].getValue();
-                        if (Array.isArray(refObject) && refObject.length > 0 || refRecord[fieldName].getDisplayValue()) {
-                            referenceArray.push(nestedObj);
-                        }
+                        var dataObject = this.createRefObject(refRecord.getTableName(), refTables, refRecord, currentNestedLevel);
+
+                        this.setlogging('info', "Data Object is " + JSON.stringify(dataObject), "", 2);
+                        referenceObject[fieldName] = {
+                            meta: metaObject,
+                            data: dataObject
+                        };
                     }
-                } else if (instanceGR[fieldName].getDisplayValue()) {
-                    var fieldObject = {};
-                    fieldObject[fieldName] = instanceGR[fieldName].getValue() != '' ? instanceGR[fieldName].getValue() : null;
-                    referenceArray.push(fieldObject);
+                } else {
+                    referenceObject[fieldName] = instanceGR[fieldName].getValue() != '' ? instanceGR[fieldName].getValue() : null;
                 }
             }
         }
-        this.setlogging('info', "Nested Reference Fields: " + JSON.stringify(referenceArray, "", 2) + " and Nested level is " + currentNestedLevel);
-        return referenceArray;
+        this.setlogging('info', "Nested Reference Fields: " + JSON.stringify(referenceObject, "", 2) + " and Nested level is " + currentNestedLevel);
+        return referenceObject;
     },
     /**
      * Create the array for reference fields and syncronize data from cmdb_ci and reference records between instances  
@@ -151,10 +157,9 @@ NestedLVLSync.prototype = {
     syncData: function(instanceGR, cmdbClass, refTables) {
         try {
             var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + "/" + instanceGR.getUniqueValue();
-            var referenceArray = this.createRefeArray(cmdbClass, refTables, instanceGR, 0);
-            //this.setlogging('info', "Reference Fields: " + JSON.stringify(referenceArray, "", 2));
-            this.syncRefData(referenceArray, instanceGR, cmdbClass, refTables, 0);
-            // this.setlogging('info', "Current Payload is: " + JSON.stringify(currentPayload, "", 2));
+            var referenceObject = this.createRefObject(cmdbClass, refTables, instanceGR, 0);
+            this.syncRefData(referenceObject, instanceGR, cmdbClass, refTables, 0);
+
             // if (currentPayload) {
             //     for (key in currentPayload) {
             //         this.payload[key] = currentPayload[key];
@@ -169,28 +174,27 @@ NestedLVLSync.prototype = {
     /** 
      * 
      * 
-     * @referenceArray {Array} array of reference field names
+     * @referenceObject {Array} array of reference field names
      * @instanceGR {GlideRecord} represents CMDB record
      * @cmdbClass {String} represents the name of the cmdb class
      * @refTables {Array} array of reference tables names
      * @returns {void}
      * 
      */
-    syncRefData: function(referenceArray, instanceGR, cmdbClass, refTables, nestedLevel) {
+    syncRefData: function(referenceObject, instanceGR, cmdbClass, refTables, nestedLevel) {
 
-		var localPayload = {};
+        var localPayload = {};
         var currentLevelFields = [];
         var previousLevelFields = [];
 
-        for (var i = 0; i < referenceArray.length; i++) {
-            for (var key in referenceArray[i]) {
-                if (Array.isArray(referenceArray[i][key])) {
+        for (var i = 0; i < referenceObject.length; i++) {
+            for (var key in referenceObject[i]) {
+                if (Array.isArray(referenceObject[i][key])) {
 
-                    var refTable = referenceArray[i][key]['sys_class_name'];
-					gs.log('referenceArray[i][key][sys_class_name]' + referenceArray[i][key]['sys_class_name']);
-					gs.log('refTable: ' + refTable);
-                    var refRecord = referenceArray[i][key];
-					gs.log('refRecord: ' + JSON.stringify(refRecord));
+                //    var refTable = referenceObject[i][key]['sys_class_name'];
+
+                //    var refRecord = referenceObject[i][key];
+
 
                     var name = encodeURIComponent(refRecord.getValue('name'));
                     var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '?sysparm_query=name%3D' + name;
@@ -217,9 +221,9 @@ NestedLVLSync.prototype = {
                         currentLevelFields = [];
                     }
                     this.setlogging('info', "Deeper to nestedlevel " + (nestedLevel + 1) + " from field: " + key);
-                    this.syncRefData(referenceArray[i][key], instanceGR, cmdbClass, refTables, nestedLevel + 1);
+                    this.syncRefData(referenceObject[i][key], instanceGR, cmdbClass, refTables, nestedLevel + 1);
                 } else {
-                    currentLevelFields.push(referenceArray[i]);
+                    currentLevelFields.push(referenceObject[i]);
                 }
             }
         }
@@ -394,13 +398,13 @@ NestedLVLSync.prototype = {
         <sys_created_by>magda.gursca</sys_created_by>
         <sys_created_on>2024-02-27 07:50:52</sys_created_on>
         <sys_id>f13aa2a6972c0210369dff76f053afd7</sys_id>
-        <sys_mod_count>114</sys_mod_count>
+        <sys_mod_count>142</sys_mod_count>
         <sys_name>NestedLVLSync</sys_name>
         <sys_package display_value="Data Driven Definition" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_policy/>
         <sys_scope display_value="Data Driven Definition">8078517597500210369dff76f053afa0</sys_scope>
         <sys_update_name>sys_script_include_f13aa2a6972c0210369dff76f053afd7</sys_update_name>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-02-28 13:52:56</sys_updated_on>
+        <sys_updated_on>2024-02-29 15:01:13</sys_updated_on>
     </sys_script_include>
 </record_update>

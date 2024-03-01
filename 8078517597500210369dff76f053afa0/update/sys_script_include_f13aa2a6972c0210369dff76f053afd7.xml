@@ -78,7 +78,7 @@ NestedLVLSync.prototype = {
      * @returns {Object} cmdbPayload Object with coresponding fields values
      * 
      */
-    createPayload: function(cmdbGR, cmdbClass) {
+    createcmdbPayload: function(cmdbGR, cmdbClass) {
         var cmdbPayload = {};
         var dictionaryGR = new GlideRecord('sys_dictionary');
         dictionaryGR.addQuery('name', cmdbClass);
@@ -96,12 +96,13 @@ NestedLVLSync.prototype = {
     /**
      * Create array of all reference fields for the cmdb class
      * 
+     * 
      * @cmdbClass {String} represents the name of the cmdb class
      * @returns {Array} array of reference field names
      * @refTables
      * 
      */
-    createRefObject: function(cmdbClass, refTables, instanceGR, currentNestedLevel) {
+    createReferenceObject: function(cmdbClass, refTables, cmdbGR, currentNestedLevel) {
         this.setlogging('info', "Starting createRefeArray with nested level: " + currentNestedLevel);
 
         var referenceObject = {};
@@ -109,189 +110,150 @@ NestedLVLSync.prototype = {
         if (currentNestedLevel >= this.nestedLevel) {
             return;
         }
-        if (currentNestedLevel < this.nestedLevel) {
-            var dictionaryGR = new GlideRecord('sys_dictionary');
-            dictionaryGR.addQuery('name', cmdbClass);
-            dictionaryGR.query();
+        var dictionaryGR = new GlideRecord('sys_dictionary');
+        dictionaryGR.addQuery('name', cmdbClass);
+        dictionaryGR.query();
 
-            while (dictionaryGR.next()) {
-                var fieldType = dictionaryGR.getDisplayValue('internal_type');
-                var fieldName = dictionaryGR.getValue('element');
-
-                if (fieldType == "Reference" && refTables.includes(instanceGR[fieldName].getReferenceTable())) {
-                    var refRecord = instanceGR[fieldName].getRefRecord();
-                    if (refRecord.isValidRecord()) {
-                        var metaObject = {
-                            sys_class_name: refRecord.getTableName(),
-                            nestedLevel: currentNestedLevel,
-                            sourceInstanceSysID: refRecord.getUniqueValue(),
-                            targetInstanceSysID: ""
-                        };
-                        this.setlogging('info', "Meta Object is " + JSON.stringify(metaObject), "", 2);
-                        currentNestedLevel++;
-                        var dataObject = this.createRefObject(refRecord.getTableName(), refTables, refRecord, currentNestedLevel);
-
-                        this.setlogging('info', "Data Object is " + JSON.stringify(dataObject), "", 2);
-                        referenceObject[fieldName] = {
-                            meta: metaObject,
-                            data: dataObject
-                        };
-                    }
-                } else {
-                    referenceObject[fieldName] = instanceGR[fieldName].getValue() != '' ? instanceGR[fieldName].getValue() : null;
+        while (dictionaryGR.next()) {
+            var fieldType = dictionaryGR.getDisplayValue('internal_type');
+            var fieldName = dictionaryGR.getValue('element');
+            //
+            if (fieldType == "Reference" && refTables.includes(cmdbGR[fieldName].getReferenceTable())) {
+                var refRecord = cmdbGR[fieldName].getRefRecord();
+                if (refRecord.isValidRecord()) {
+                    currentNestedLevel++;
+                    var dataObject = this.createReferenceObject(refRecord.getTableName(), refTables, refRecord, currentNestedLevel);
+                    var metaObject = {
+                        sys_class_name: refRecord.getTableName(),
+                        nestedLevel: currentNestedLevel,
+                        sourceInstanceSysID: refRecord.getUniqueValue(),
+                        targetInstanceSysID: ""
+                    };
+                    this.setlogging('info', "Meta Object is " + JSON.stringify(metaObject), "", 2);
+                    this.setlogging('info', "Data Object is " + JSON.stringify(dataObject), "", 2);
+                    referenceObject[fieldName] = {
+                        meta: metaObject,
+                        data: dataObject
+                    };
                 }
+            } else {
+                //why?
+                referenceObject[fieldName] = cmdbGR[fieldName].getDisplayValue() != '' ? cmdbGR[fieldName].getDisplayValue() : null;
             }
         }
+        //}
         this.setlogging('info', "Nested Reference Fields: " + JSON.stringify(referenceObject, "", 2) + " and Nested level is " + currentNestedLevel);
         return referenceObject;
     },
     /**
-     * Create the array for reference fields and syncronize data from cmdb_ci and reference records between instances  
+     * Create the object for reference fields and syncronize data from cmdb_ci and reference records between instances  
      * 
-     * @instanceGR {GlideRecord} represents CMDB record
+     * @cmdbGR {GlideRecord} represents CMDB record
      * @cmdbClass {String} represents the name of the cmdb class
      * @refTables {Array} array of reference tables name
      * @returns {void}
      * 
      */
-    syncData: function(instanceGR, cmdbClass, refTables) {
+    syncData: function(cmdbGR, cmdbClass, refTables) {
         try {
-            var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + "/" + instanceGR.getUniqueValue();
-            var referenceObject = this.createRefObject(cmdbClass, refTables, instanceGR, 0);
-            this.syncRefData(referenceObject, instanceGR, cmdbClass, refTables, 0);
-
-            // if (currentPayload) {
-            //     for (key in currentPayload) {
-            //         this.payload[key] = currentPayload[key];
-            //     }
-            // }
-            //this.setlogging('info', "This payload for put call for cmmdb_ci is" + JSON.stringify(this.payload, "", 2));
-            this.executeRESTCall(url, 'PUT', this.payload, cmdbClass);
+            var masterData = this.createReferenceObject(cmdbClass, refTables, cmdbGR, 0);
+            this.setlogging('info', "masterData: " + JSON.stringify(masterData), "", 2);
+            this.processData(masterData);
         } catch (e) {
             gs.error(e);
         }
     },
-    /** 
-     * 
-     * 
-     * @referenceObject {Array} array of reference field names
-     * @instanceGR {GlideRecord} represents CMDB record
-     * @cmdbClass {String} represents the name of the cmdb class
-     * @refTables {Array} array of reference tables names
-     * @returns {void}
-     * 
-     */
-    syncRefData: function(referenceObject, instanceGR, cmdbClass, refTables, nestedLevel) {
-
-        var localPayload = {};
-        var currentLevelFields = [];
-        var previousLevelFields = [];
-
-        for (var i = 0; i < referenceObject.length; i++) {
-            for (var key in referenceObject[i]) {
-                if (Array.isArray(referenceObject[i][key])) {
-
-                //    var refTable = referenceObject[i][key]['sys_class_name'];
-
-                //    var refRecord = referenceObject[i][key];
-
-
-                    var name = encodeURIComponent(refRecord.getValue('name'));
-                    var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '?sysparm_query=name%3D' + name;
-                    var returnObj = this.executeRESTCall(url, 'GET', refRecord, refTable);
-                    this.setlogging('info', "Return obj for reference record" + JSON.stringify(returnObj));
-                    this.setlogging('info', "URL for get:" + url);
-                    if (returnObj == null) {
-                        var postUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
-                        var postResponse = this.executeRESTCall(postUrl, 'POST', refRecord, refTable);
-                        this.setlogging('info', "Post response for reference table" + JSON.stringify(postResponse) + ",table:" + refTable);
-                        this.setlogging('info', "New POST sys_id is: " + postResponse.responseBody.result.sys_id);
-                        localPayload[field] = postResponse.responseBody.result.sys_id;
-                    }
-                    if (returnObj) {
-                        var putUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + returnObj.responseBody.result[0].sys_id;
-                        var putResponse = this.executeRESTCall(putUrl, 'PUT', refRecord, refTable);
-                        localPayload[field] = returnObj.responseBody.result[0].sys_id;
-                        this.setlogging('info', "New PUT sys_id is: " + returnObj.responseBody.result[0].sys_id);
-                    }
-                    if (currentLevelFields.length > 0) {
-                        this.setlogging('info', "currentLevelFields: " + JSON.stringify(currentLevelFields, "", 2));
-                        previousLevelFields = currentLevelFields.slice(); // copy the array.
-                        this.setlogging('info', "previousLevelFields: " + JSON.stringify(previousLevelFields, "", 2));
-                        currentLevelFields = [];
-                    }
-                    this.setlogging('info', "Deeper to nestedlevel " + (nestedLevel + 1) + " from field: " + key);
-                    this.syncRefData(referenceObject[i][key], instanceGR, cmdbClass, refTables, nestedLevel + 1);
-                } else {
-                    currentLevelFields.push(referenceObject[i]);
-                }
+    processData: function(data) {
+        for (var key in data) {
+            if (!data.hasOwnProperty(key)) continue;
+            var item = data[key];
+            if (typeof item === 'object' && item !== null && item.meta && item.data) {
+                this.setlogging('info', "Processing nested reference for: " + key);
+                this.syncReferenceData(item, item.meta.sys_class_name);
             }
         }
-        // this.setlogging('info', "Starting syncRefData with nested level: " + nestedLevel);
-        //   try {
-        //     var localTargetID = "";
-        //     var localPayload = {};
-        //     for (var i = 0; i < referenceArray.length; i++) {
-        //         var referencePayload = {};
-        //         var field = referenceArray[i];
-        //         var refRecord = instanceGR[field].getRefRecord();
-        //         if (refRecord.isValidRecord()) {
-        //             var refTable = instanceGR[field].getReferenceTable();
-        //             for (var keys in refRecord) {
-        //                 var fieldValue = refRecord.getValue(keys);
-        //                 referencePayload[keys] = fieldValue;
-        //             }
-        //             this.refPayload = referencePayload;
-        //             var name = encodeURIComponent(refRecord.getValue('name'));
-        //             var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '?sysparm_query=name%3D' + name;
-        //             var returnObj = this.executeRESTCall(url, 'GET', refRecord, refTable);
-        //             // this.setlogging('info', "Return obj for reference record" + JSON.stringify(returnObj));
-        //             // this.setlogging('info', "URL for get:" + url);
-        //             if (returnObj == null) {
-        //                 var postUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
-        //                 var postResponse = this.executeRESTCall(postUrl, 'POST', refRecord, refTable);
-        //                 //  this.setlogging('info', "Post response for reference table" + JSON.stringify(postResponse) + ",table:" + refTable);
-        //                 //  this.setlogging('info', "New POST sys_id is: " + postResponse.responseBody.result.sys_id);
-        //                 //this.payload[field] = postResponse.responseBody.result.sys_id;
-        //                 localPayload[field] = postResponse.responseBody.result.sys_id;
-        //             }
-        //             if (returnObj) {
-        //                 var putUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + returnObj.responseBody.result[0].sys_id;
-        //                 var putResponse = this.executeRESTCall(putUrl, 'PUT', refRecord, refTable);
-        //                 localTargetID = returnObj.responseBody.result[0].sys_id;
-        //                 //this.payload[field] = localTargetID;
-        //                 localPayload[field] = localTargetID;
-        //                 // this.setlogging('info', "New PUT sys_id is: " + returnObj.responseBody.result[0].sys_id);
-        //             }
-        //             // if (nestedLevel == 0) {
-        //             //     this.setlogging('info', 'Current Nested level:' + nestedLevel);
-        //             //     return;
-        //             // }
-        //             // if (nestedLevel <= this.nestedLevel) {
-        //             //     var nestedReferenceArray = this.createRefeArray(refTable, refTables, refRecord);
-        //             //     this.setlogging('info', "Nested Reference Fields: " + JSON.stringify(nestedReferenceArray + "and Nested level is" + nestedLevel));
-        //             //     nestedLevel--;
-        //             //     this.syncRefData(nestedReferenceArray, refRecord, refTable, refTables, nestedLevel);
-        //             // }
-        //             return localPayload;
-        //         }
-        //     }
-        // } catch (e) {
-        //     gs.error(e);
-        // }
     },
+
+    syncReferenceData: function(item, refTable) {
+        var payload = item.data;
+		for (var key in payload) { 
+			if(typeof payload[key] === 'object' && payload[key] !== null){
+                  payload[key] = item.meta.sourceInstanceSysID;
+			}
+		}
+        this.setlogging('info', "Sync data for table: " + refTable + " with payload: " + JSON.stringify(payload), "", 2);
+        var name = encodeURIComponent(payload['name']);
+        var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '?sysparm_query=name%3D' + name;
+        var returnObj = this.executeRESTCall(url, 'GET', payload, refTable);
+        this.setlogging('info', "Return obj for reference record" + JSON.stringify(returnObj));
+        this.setlogging('info', "URL for get:" + url);
+        if (returnObj == null) {
+            var postUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
+            var postResponse = this.executeRESTCall(postUrl, 'POST', payload, refTable);
+            this.setlogging('info', "Post response for reference table" + JSON.stringify(postResponse) + ",table:" + refTable);
+            this.setlogging('info', "New POST sys_id is: " + postResponse.responseBody.result.sys_id);
+            masterData[keys][meta][targetInstanceSysID] = postResponse.responseBody.result.sys_id;
+        }
+        if (returnObj) {
+            var putUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + returnObj.responseBody.result[0].sys_id;
+            var putResponse = this.executeRESTCall(putUrl, 'PUT', payload, refTable);
+        }
+    },
+    // syncData: function(cmdbGR, cmdbClass, refTables) {
+    //     var localPayload = {};
+    //     try {
+    //         var masterData = this.createReferenceObject(cmdbClass, refTables, cmdbGR, 0);
+    //         this.setlogging('info', "masterData: " + JSON.stringify(masterData), "", 2);
+    //         for (var key in masterData) {
+    // 			var referenceVerification = false;
+    //             if (!masterData.hasOwnProperty(key)) continue; {
+    //                 var item = masterData[key];
+    //                 if (typeof item === 'object' && item !== null && item.meta && item.data) {
+    //                     this.setlogging('info', "Processing nested reference for: " + key);
+    //                     localPayload[key] = item.data;
+    // 					referenceVerification = true;
+    //                 } else {
+    //                     localPayload[key] = item;
+    //                 }
+    //             }
+    //         }
+    // 		if (referenceVerification == false) {
+    //             var refTable = masterData[key]['meta']['sys_class_name'];
+    //             this.setlogging('info', "refTable: " + refTable);
+    //             this.setlogging('info', "localPayload: " + JSON.stringify(localPayload), "", 2);
+    //             var name = encodeURIComponent(localPayload['name']);
+    //             var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '?sysparm_query=name%3D' + name;
+    //             var returnObj = this.executeRESTCall(url, 'GET', localPayload, refTable);
+    //             this.setlogging('info', "Return obj for reference record" + JSON.stringify(returnObj));
+    //             this.setlogging('info', "URL for get:" + url);
+    //             if (returnObj == null) {
+    //                 var postUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable;
+    //                 var postResponse = this.executeRESTCall(postUrl, 'POST', localPayload, refTable);
+    //                 this.setlogging('info', "Post response for reference table" + JSON.stringify(postResponse) + ",table:" + refTable);
+    //                 this.setlogging('info', "New POST sys_id is: " + postResponse.responseBody.result.sys_id);
+    //                 masterData[keys][meta][targetInstanceSysID] = postResponse.responseBody.result.sys_id;
+    //             }
+    //             if (returnObj) {
+    //                 var putUrl = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + refTable + '/' + returnObj.responseBody.result[0].sys_id;
+    //                 var putResponse = this.executeRESTCall(putUrl, 'PUT', localPayload, refTable);
+    //             }
+    // 		}
+    //     } catch (e) {
+    //         gs.error(e);
+    //     }
+    // },
     /** 
      * Create cmdb_ci record in the target instance
      * 
-     * @instanceGR {GlideRecord} represents CMDB record
+     * @cmdbGR {GlideRecord} represents CMDB record
      * @cmdbClass {String} represents the name of the cmdb class
      * @returns {void}
      * 
      */
-    postData: function(instanceGR, cmdbClass, refTables) {
+    postData: function(cmdbGR, cmdbClass, refTables) {
         try {
             var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass;
-            this.syncData(instanceGR, cmdbClass, refTables);
+            this.syncData(cmdbGR, cmdbClass, refTables);
             this.executeRESTCall(url, 'POST', this.payload, cmdbClass);
         } catch (e) {
             gs.error(e);
@@ -300,22 +262,22 @@ NestedLVLSync.prototype = {
     /** 
      * Create the payload for cmdb_ci table, verify which REST API Method need to be used for syncronization and execute cmdb definition
      * 
-     * @instanceGR {GlideRecord} represents CMDB record
+     * @cmdbGR {GlideRecord} represents CMDB record
      * @cmdbClass {String} represents the name of the cmdb class
      * @refTables {Array} array of reference tables names
      * @returns {void}
      * 
      */
-    executeCMDBDefinition: function(instanceGR, cmdbClass, refTables) {
+    executeCMDBDefinition: function(cmdbGR, cmdbClass, refTables) {
         try {
-            var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=correlation_id%' + instanceGR.getUniqueValue();
-            this.payload = this.createPayload(instanceGR, cmdbClass);
+            var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=correlation_id%' + cmdbGR.getUniqueValue();
+            this.payload = this.createcmdbPayload(cmdbGR, cmdbClass);
             // this.setlogging('info', "This.payload for cmdb_ci is:" + JSON.stringify(this.payload, "", 2));
-            var returnObj = this.executeRESTCall(url, 'GET', instanceGR, cmdbClass);
+            var returnObj = this.executeRESTCall(url, 'GET', cmdbGR, cmdbClass);
             if (returnObj == null) {
-                this.postData(instanceGR, cmdbClass, refTables);
+                this.postData(cmdbGR, cmdbClass, refTables);
             } else {
-                this.syncData(instanceGR, cmdbClass, refTables);
+                this.syncData(cmdbGR, cmdbClass, refTables);
             }
         } catch (e) {
             gs.error(e);
@@ -325,11 +287,11 @@ NestedLVLSync.prototype = {
      * Construct and execute REST API Call that needs to be used for syncronization
      * 
      * @url {URL} represents the URL for the REST Call
-     * @instanceGR {GlideRecord} represents CMDB record
+     * @cmdbGR {GlideRecord} represents CMDB record
      * @cmdbClass {String} represents the name of the cmdb class
      * @returns {}
      */
-    executeRESTCall: function(url, method, instanceGR, cmdbClass) {
+    executeRESTCall: function(url, method, payload, cmdbClass) {
         var provider = new sn_cc.StandardCredentialsProvider();
         var credentials = provider.getCredentialByID(gs.getProperty(NestedLVLSync.PROPERTIES.PUSHING_CREDENTIAL_ID));
         var user = credentials.getAttribute("user_name");
@@ -340,23 +302,23 @@ NestedLVLSync.prototype = {
         request.setRequestHeader('Content-Type', 'application/json');
         request.setHttpMethod(method);
         if ((method == 'PUT' && cmdbClass.includes('cmdb_ci')) || (method == 'POST' && cmdbClass.includes('cmdb_ci'))) {
-            request.setRequestBody(JSON.stringify(this.payload));
+            request.setRequestBody(JSON.stringify(payload));
         } else if (method == 'PUT' || method == 'POST') {
-            request.setRequestBody(JSON.stringify(this.refPayload));
+            request.setRequestBody(JSON.stringify(payload));
         }
         if (method == 'GET' && cmdbClass.includes('cmdb_ci')) {
-            url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=correlation_id%3D' + instanceGR.getUniqueValue();
+            url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=correlation_id%3D' + payload.getUniqueValue();
         } else if (method == 'GET') {
-            var name = encodeURIComponent(instanceGR.getValue('name'));
+            var name = encodeURIComponent(payload['name']);
             url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbClass + '?sysparm_query=name%3D' + name;
-            //  this.setlogging('info', "URL FOR GET REFERENCE RECORD IS" + url);
+            this.setlogging('info', "URL FOR GET REFERENCE RECORD IS" + url);
         }
 
         request.setEndpoint(url);
         var response = request.execute();
         var responseBody = JSON.parse(response.getBody());
         var httpsStatus = response.getStatusCode();
-        //  this.setlogging('info', 'Response body for' + method + ' is' + JSON.stringify(responseBody, "", 2));
+        this.setlogging('info', 'Response body for' + method + ' is' + JSON.stringify(responseBody, "", 2));
         if (method == 'GET' && responseBody.result.length == 0) {
             return null;
         }
@@ -398,13 +360,13 @@ NestedLVLSync.prototype = {
         <sys_created_by>magda.gursca</sys_created_by>
         <sys_created_on>2024-02-27 07:50:52</sys_created_on>
         <sys_id>f13aa2a6972c0210369dff76f053afd7</sys_id>
-        <sys_mod_count>142</sys_mod_count>
+        <sys_mod_count>188</sys_mod_count>
         <sys_name>NestedLVLSync</sys_name>
         <sys_package display_value="Data Driven Definition" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_policy/>
         <sys_scope display_value="Data Driven Definition">8078517597500210369dff76f053afa0</sys_scope>
         <sys_update_name>sys_script_include_f13aa2a6972c0210369dff76f053afd7</sys_update_name>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-02-29 15:01:13</sys_updated_on>
+        <sys_updated_on>2024-03-01 14:22:29</sys_updated_on>
     </sys_script_include>
 </record_update>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_test_suite_test">
+    <sys_atf_test_suite_test action="DELETE">
+        <abort_on_failure>false</abort_on_failure>
+        <order>2</order>
+        <sys_class_name>sys_atf_test_suite_test</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-07 12:24:06</sys_created_on>
+        <sys_id>b5cf792197b44610369dff76f053afd1</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>e98cf92d97744610369dff76f053af05</sys_name>
+        <sys_package display_value="Data Driven Definition" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Data Driven Definition">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_update_name>sys_atf_test_suite_test_b5cf792197b44610369dff76f053afd1</sys_update_name>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-07 12:24:06</sys_updated_on>
+        <test display_value="Creste reference records for the existing CMDB CI">e98cf92d97744610369dff76f053af05</test>
+        <test_suite display_value="Synchronize Data Between Instances - Create">d47f792197b44610369dff76f053af1a</test_suite>
+    </sys_atf_test_suite_test>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</application>
+        <file_path/>
+        <instance_id>064ad2f9db47a410ad8dd7c8f49619ce</instance_id>
+        <instance_name>dev107996</instance_name>
+        <name>sys_atf_test_suite_test_b5cf792197b44610369dff76f053afd1</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_test_suite_test"><sys_atf_test_suite_test action="INSERT_OR_UPDATE"><abort_on_failure>false</abort_on_failure><order>2</order><sys_class_name>sys_atf_test_suite_test</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-07 12:24:06</sys_created_on><sys_id>b5cf792197b44610369dff76f053afd1</sys_id><sys_mod_count>0</sys_mod_count><sys_name>e98cf92d97744610369dff76f053af05</sys_name><sys_package display_value="Data Driven Definition" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package><sys_policy/><sys_scope display_value="Data Driven Definition">8078517597500210369dff76f053afa0</sys_scope><sys_update_name>sys_atf_test_suite_test_b5cf792197b44610369dff76f053afd1</sys_update_name><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-07 12:24:06</sys_updated_on><test display_value="Creste reference records for the existing CMDB CI">e98cf92d97744610369dff76f053af05</test><test_suite display_value="Synchronize Data Between Instances - Create">d47f792197b44610369dff76f053af1a</test_suite></sys_atf_test_suite_test></record_update>]]></payload>
+        <payload_hash>-462311869</payload_hash>
+        <record_name>e98cf92d97744610369dff76f053af05</record_name>
+        <reverted_from/>
+        <source>932a9df597500210369dff76f053afd9</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-07 12:24:06</sys_created_on>
+        <sys_id>54df716197b44610369dff76f053af4d</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>18e18deedbe0000001</sys_recorded_at>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-07 12:24:06</sys_updated_on>
+        <type>Test Suite Test</type>
+        <update_guid>58df7161ecb44610a6e30b438dd27f4c</update_guid>
+        <update_guid_history>58df7161ecb44610a6e30b438dd27f4c:-462311869</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-07 14:03:21</sys_created_on>
+        <sys_db_object display_value="" name="sys_atf_test_suite_test">sys_atf_test_suite_test</sys_db_object>
+        <sys_id>2e8436feed7f4ffebe221a4ca0e015e4</sys_id>
+        <sys_metadata>b5cf792197b44610369dff76f053afd1</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>e98cf92d97744610369dff76f053af05</sys_name>
+        <sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_scope_delete display_value="">137cff71858e4bf182a22564b6dec841</sys_scope_delete>
+        <sys_update_name>sys_atf_test_suite_test_b5cf792197b44610369dff76f053afd1</sys_update_name>
+        <sys_update_version display_value="sys_atf_test_suite_test_b5cf792197b44610369dff76f053afd1">54df716197b44610369dff76f053af4d</sys_update_version>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-07 14:03:21</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

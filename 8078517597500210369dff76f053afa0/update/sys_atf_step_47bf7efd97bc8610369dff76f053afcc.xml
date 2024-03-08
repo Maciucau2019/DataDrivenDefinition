@@ -2,150 +2,150 @@
     <sys_atf_step action="INSERT_OR_UPDATE">
         <active>true</active>
         <copied_from/>
-        <description>Open the 'Network Gear' form with id '{{Step 13: Click a UI Action.Record}}'</description>
+        <description>Open the 'Network Gear' form with id '{{Step 4: Click a UI Action.Record}}'</description>
         <display_name>Open an Existing Record</display_name>
         <inputs/>
         <inputs/>
         <mugshots_cache_json/>
         <notes/>
-        <order>19</order>
+        <order>9</order>
         <step_config display_value="Open an Existing Record">5f2e0e535332120028bc29cac2dc34d3</step_config>
         <sys_class_name>sys_atf_step</sys_class_name>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>a0eb1aa597384610369dff76f053af29</sys_id>
-        <sys_mod_count>0</sys_mod_count>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>47bf7efd97bc8610369dff76f053afcc</sys_id>
+        <sys_mod_count>3</sys_mod_count>
         <sys_name>Open an Existing Record</sys_name>
         <sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_policy/>
         <sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope>
-        <sys_update_name>sys_atf_step_a0eb1aa597384610369dff76f053af29</sys_update_name>
+        <sys_update_name>sys_atf_step_47bf7efd97bc8610369dff76f053afcc</sys_update_name>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:58:58</sys_updated_on>
         <table>cmdb_ci_netgear</table>
-        <test display_value="Synchronize CMDB Data Between Instances">1fef8ea597f44610369dff76f053af9b</test>
+        <test display_value="Update CMDB CI record">cc5fb27197fc8610369dff76f053afe4</test>
         <timeout/>
         <warning_message/>
     </sys_atf_step>
-    <sys_variable_value action="delete_multiple" query="document_key=a0eb1aa597384610369dff76f053af29"/>
+    <sys_variable_value action="delete_multiple" query="document_key=47bf7efd97bc8610369dff76f053afcc"/>
     <sys_variable_value action="INSERT_OR_UPDATE">
         <document>sys_atf_step</document>
-        <document_key>a0eb1aa597384610369dff76f053af29</document_key>
+        <document_key>47bf7efd97bc8610369dff76f053afcc</document_key>
         <order>100</order>
         <sys_class_name>sys_variable_value</sys_class_name>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>280c92e597384610369dff76f053afa1</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>06effa7197fc8610369dff76f053af64</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <value>record</value>
         <variable display_value="Record path">74d6e7a0a3023110571967d1361e616b</variable>
     </sys_variable_value>
     <sys_variable_value action="INSERT_OR_UPDATE">
         <document>sys_atf_step</document>
-        <document_key>a0eb1aa597384610369dff76f053af29</document_key>
+        <document_key>47bf7efd97bc8610369dff76f053afcc</document_key>
         <order>200</order>
         <sys_class_name>sys_variable_value</sys_class_name>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>2c0c92e597384610369dff76f053afa0</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>0aeffa7197fc8610369dff76f053af63</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <value/>
         <variable display_value="Record">ad351a4e53a0220002c6435723dc34f0</variable>
     </sys_variable_value>
     <sys_variable_value action="INSERT_OR_UPDATE">
         <document>sys_atf_step</document>
-        <document_key>a0eb1aa597384610369dff76f053af29</document_key>
+        <document_key>47bf7efd97bc8610369dff76f053afcc</document_key>
         <order>400</order>
         <sys_class_name>sys_variable_value</sys_class_name>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>640c92e597384610369dff76f053afa1</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>42effa7197fc8610369dff76f053af64</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <value>1</value>
         <variable display_value="Selected Tab Index">c2eb56e853422110248dddeeff7b1261</variable>
     </sys_variable_value>
     <sys_variable_value action="INSERT_OR_UPDATE">
         <document>sys_atf_step</document>
-        <document_key>a0eb1aa597384610369dff76f053af29</document_key>
+        <document_key>47bf7efd97bc8610369dff76f053afcc</document_key>
         <order>300</order>
         <sys_class_name>sys_variable_value</sys_class_name>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>a00c92e597384610369dff76f053afa1</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>8eeffa7197fc8610369dff76f053af63</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <value/>
         <variable display_value="View">6e55da4e53a0220002c6435723dc34a0</variable>
     </sys_variable_value>
     <sys_variable_value action="INSERT_OR_UPDATE">
         <document>sys_atf_step</document>
-        <document_key>a0eb1aa597384610369dff76f053af29</document_key>
+        <document_key>47bf7efd97bc8610369dff76f053afcc</document_key>
         <order>100</order>
         <sys_class_name>sys_variable_value</sys_class_name>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>e80c92e597384610369dff76f053afa1</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>c6effa7197fc8610369dff76f053af64</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <value>cmdb_ci_netgear</value>
         <variable display_value="Table">b124164e53a0220002c6435723dc34c5</variable>
     </sys_variable_value>
     <sys_variable_value action="INSERT_OR_UPDATE">
         <document>sys_atf_step</document>
-        <document_key>a0eb1aa597384610369dff76f053af29</document_key>
+        <document_key>47bf7efd97bc8610369dff76f053afcc</document_key>
         <order>50</order>
         <sys_class_name>sys_variable_value</sys_class_name>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>ec0c92e597384610369dff76f053afa0</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>caeffa7197fc8610369dff76f053af63</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <value>standard_ui</value>
         <variable display_value="Form UI">17d732a9c7a333005e5c45b881c26007</variable>
     </sys_variable_value>
-    <sys_element_mapping action="delete_multiple" query="id=a0eb1aa597384610369dff76f053af29"/>
+    <sys_element_mapping action="delete_multiple" query="id=47bf7efd97bc8610369dff76f053afcc"/>
     <sys_element_mapping action="INSERT_OR_UPDATE">
         <field>record_id</field>
-        <id>a0eb1aa597384610369dff76f053af29</id>
+        <id>47bf7efd97bc8610369dff76f053afcc</id>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>240c92e597384610369dff76f053afa0</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>02effa7197fc8610369dff76f053af63</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <table>var__m_atf_input_variable_5f2e0e535332120028bc29cac2dc34d3</table>
-        <value>{{step['c03716ed97f44610369dff76f053af4b'].record_id}}</value>
+        <value>{{step['d05fb27197fc8610369dff76f053afff'].record_id}}</value>
     </sys_element_mapping>
     <sys_element_mapping action="INSERT_OR_UPDATE">
         <field>selected_tab_index</field>
-        <id>a0eb1aa597384610369dff76f053af29</id>
+        <id>47bf7efd97bc8610369dff76f053afcc</id>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>a80c92e597384610369dff76f053afa0</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>86effa7197fc8610369dff76f053af63</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <table>var__m_atf_input_variable_5f2e0e535332120028bc29cac2dc34d3</table>
         <value/>
     </sys_element_mapping>
     <sys_element_mapping action="INSERT_OR_UPDATE">
         <field>view</field>
-        <id>a0eb1aa597384610369dff76f053af29</id>
+        <id>47bf7efd97bc8610369dff76f053afcc</id>
         <sys_created_by>magda.gursca</sys_created_by>
-        <sys_created_on>2024-03-07 14:27:16</sys_created_on>
-        <sys_id>e40c92e597384610369dff76f053afa0</sys_id>
+        <sys_created_on>2024-03-08 11:42:36</sys_created_on>
+        <sys_id>c2effa7197fc8610369dff76f053af63</sys_id>
         <sys_mod_count>0</sys_mod_count>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-07 14:27:16</sys_updated_on>
+        <sys_updated_on>2024-03-08 11:42:36</sys_updated_on>
         <table>var__m_atf_input_variable_5f2e0e535332120028bc29cac2dc34d3</table>
         <value/>
     </sys_element_mapping>

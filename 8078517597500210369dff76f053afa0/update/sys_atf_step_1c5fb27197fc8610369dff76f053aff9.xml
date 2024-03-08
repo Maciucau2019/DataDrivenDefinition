@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <copied_from display_value="Set Field Values">6a6592f997f88610369dff76f053af8f</copied_from>
+        <description>Set the following values on the form:
+Name = Demo
+and Serial number = 888
+and Ports = -1
+and Channels = -1
+and IP Address = 198.17.34.1
+and Estimated bandwidth = -1
+and Firmware version = 6</description>
+        <display_name>Set Field Values</display_name>
+        <inputs/>
+        <mugshots_cache_json/>
+        <notes/>
+        <order>3</order>
+        <step_config display_value="Set Field Values">fcae4a935332120028bc29cac2dc340e</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 11:40:01</sys_created_on>
+        <sys_id>1c5fb27197fc8610369dff76f053aff9</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Set Field Values</sys_name>
+        <sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_update_name>sys_atf_step_1c5fb27197fc8610369dff76f053aff9</sys_update_name>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 11:40:01</sys_updated_on>
+        <table>cmdb_ci_netgear</table>
+        <test display_value="Update CMDB CI record">cc5fb27197fc8610369dff76f053afe4</test>
+        <timeout/>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="delete_multiple" query="document_key=1c5fb27197fc8610369dff76f053aff9"/>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>1c5fb27197fc8610369dff76f053aff9</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 11:40:01</sys_created_on>
+        <sys_id>1c5fb27197fc8610369dff76f053affa</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 11:40:01</sys_updated_on>
+        <value>cmdb_ci_netgear</value>
+        <variable display_value="Table">424ca6465320220002c6435723dc34b5</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>1c5fb27197fc8610369dff76f053aff9</document_key>
+        <order>50</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 11:40:01</sys_created_on>
+        <sys_id>585fb27197fc8610369dff76f053affa</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 11:40:01</sys_updated_on>
+        <value>standard_ui</value>
+        <variable display_value="Form UI">946f3c1a0f23330072e6452bc4767eda</variable>
+    </sys_variable_value>
+    <sys_variable_value action="INSERT_OR_UPDATE">
+        <document>sys_atf_step</document>
+        <document_key>1c5fb27197fc8610369dff76f053aff9</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 11:40:01</sys_created_on>
+        <sys_id>dc5fb27197fc8610369dff76f053affa</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 11:40:01</sys_updated_on>
+        <value>name=Demo^serial_number=888^ports=-1^channels=-1^ip_address=198.17.34.1^bandwidth=-1^firmware_version=6^EQ</value>
+        <variable display_value="Field values">b3dba2465320220002c6435723dc34f0</variable>
+    </sys_variable_value>
+    <sys_element_mapping action="delete_multiple" query="table=var__m_atf_input_variable_fcae4a935332120028bc29cac2dc340e^id=1c5fb27197fc8610369dff76f053aff9"/>
+</record_update>

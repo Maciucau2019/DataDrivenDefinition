@@ -29,7 +29,7 @@ See the documentation for Test Design Considerations</description>
         <sys_updated_by>magda.gursca</sys_updated_by>
         <sys_updated_on>2024-03-07 14:23:27</sys_updated_on>
         <table>sys_script_fix</table>
-        <test display_value="Synchronize CMDB Data Between Instances">1fef8ea597f44610369dff76f053af9b</test>
+        <test display_value="Create CMDB CI record and reference records">1fef8ea597f44610369dff76f053af9b</test>
         <timeout/>
         <warning_message>Warning: Using a system table may cause unexpected behavior for other tests running in parallel&#13;
 See the documentation for Test Design Considerations</warning_message>

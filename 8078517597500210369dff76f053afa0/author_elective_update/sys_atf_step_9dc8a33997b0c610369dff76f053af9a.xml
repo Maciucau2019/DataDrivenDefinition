@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step">
+    <sys_atf_step action="DELETE">
+        <active>true</active>
+        <copied_from/>
+        <description>Click UI action 'Run Fix Script' on 'Fix Script' form</description>
+        <display_name>Click a UI Action</display_name>
+        <inputs/>
+        <mugshots_cache_json/>
+        <notes/>
+        <order>9</order>
+        <step_config display_value="Click a UI Action">0f4a128297202200abe4bb7503ac4af0</step_config>
+        <sys_class_name>sys_atf_step</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:41:19</sys_created_on>
+        <sys_id>9dc8a33997b0c610369dff76f053af9a</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Click a UI Action</sys_name>
+        <sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_update_name>sys_atf_step_9dc8a33997b0c610369dff76f053af9a</sys_update_name>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:41:19</sys_updated_on>
+        <table>sys_script_fix</table>
+        <test display_value="Create CMDB CI record">62051ab997f88610369dff76f053afb1</test>
+        <timeout>1970-01-01 00:00:05</timeout>
+        <warning_message/>
+    </sys_atf_step>
+    <sys_variable_value action="DELETE" query="document_key=9dc8a33997b0c610369dff76f053af9a"/>
+    <sys_variable_value action="DELETE">
+        <document>sys_atf_step</document>
+        <document_key>9dc8a33997b0c610369dff76f053af9a</document_key>
+        <order>150</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:41:19</sys_created_on>
+        <sys_id>00d8633997b0c610369dff76f053af39</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:41:19</sys_updated_on>
+        <value>ui_action</value>
+        <variable display_value="Action Type">334ea2f153212110248dddeeff7b1255</variable>
+    </sys_variable_value>
+    <sys_variable_value action="DELETE">
+        <document>sys_atf_step</document>
+        <document_key>9dc8a33997b0c610369dff76f053af9a</document_key>
+        <order>50</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:41:19</sys_created_on>
+        <sys_id>4cd8633997b0c610369dff76f053af38</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:41:19</sys_updated_on>
+        <value>standard_ui</value>
+        <variable display_value="Form UI">535cb5ab53233300f06fddeeff7b1247</variable>
+    </sys_variable_value>
+    <sys_variable_value action="DELETE">
+        <document>sys_atf_step</document>
+        <document_key>9dc8a33997b0c610369dff76f053af9a</document_key>
+        <order>100</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:41:19</sys_created_on>
+        <sys_id>84d8633997b0c610369dff76f053af39</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:41:19</sys_updated_on>
+        <value>sys_script_fix</value>
+        <variable display_value="Table">3eee292353e0220002c6435723dc343c</variable>
+    </sys_variable_value>
+    <sys_variable_value action="DELETE">
+        <document>sys_atf_step</document>
+        <document_key>9dc8a33997b0c610369dff76f053af9a</document_key>
+        <order>400</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:41:19</sys_created_on>
+        <sys_id>88d8633997b0c610369dff76f053af38</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:41:19</sys_updated_on>
+        <value>239f93e187333200bb9b61fb97cb0b64</value>
+        <variable display_value="UI action">7c5f6d2353e0220002c6435723dc34f6</variable>
+    </sys_variable_value>
+    <sys_variable_value action="DELETE">
+        <document>sys_atf_step</document>
+        <document_key>9dc8a33997b0c610369dff76f053af9a</document_key>
+        <order>400</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:41:19</sys_created_on>
+        <sys_id>c0d8633997b0c610369dff76f053af39</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:41:19</sys_updated_on>
+        <value/>
+        <variable display_value="Declarative Action">51547e3953212110248dddeeff7b126b</variable>
+    </sys_variable_value>
+    <sys_variable_value action="DELETE">
+        <document>sys_atf_step</document>
+        <document_key>9dc8a33997b0c610369dff76f053af9a</document_key>
+        <order>500</order>
+        <sys_class_name>sys_variable_value</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:41:19</sys_created_on>
+        <sys_id>c4d8633997b0c610369dff76f053af38</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:41:19</sys_updated_on>
+        <value/>
+        <variable display_value="Assert type">7600f16353e0220002c6435723dc34d5</variable>
+    </sys_variable_value>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</application>
+        <file_path/>
+        <instance_id>064ad2f9db47a410ad8dd7c8f49619ce</instance_id>
+        <instance_name>dev107996</instance_name>
+        <name>sys_atf_step_9dc8a33997b0c610369dff76f053af9a</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_atf_step"><sys_atf_step action="INSERT_OR_UPDATE"><active>true</active><copied_from/><description>Click UI action 'Run Fix Script' on 'Fix Script' form</description><display_name>Click a UI Action</display_name><inputs/><mugshots_cache_json/><notes/><order>9</order><step_config display_value="Click a UI Action">0f4a128297202200abe4bb7503ac4af0</step_config><sys_class_name>sys_atf_step</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-08 14:41:19</sys_created_on><sys_id>9dc8a33997b0c610369dff76f053af9a</sys_id><sys_mod_count>0</sys_mod_count><sys_name>Click a UI Action</sys_name><sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package><sys_policy/><sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope><sys_update_name>sys_atf_step_9dc8a33997b0c610369dff76f053af9a</sys_update_name><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-08 14:41:19</sys_updated_on><table>sys_script_fix</table><test display_value="Create CMDB CI record">62051ab997f88610369dff76f053afb1</test><timeout>1970-01-01 00:00:05</timeout><warning_message/></sys_atf_step><sys_variable_value action="delete_multiple" query="document_key=9dc8a33997b0c610369dff76f053af9a"/><sys_variable_value action="INSERT_OR_UPDATE"><document>sys_atf_step</document><document_key>9dc8a33997b0c610369dff76f053af9a</document_key><order>150</order><sys_class_name>sys_variable_value</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-08 14:41:19</sys_created_on><sys_id>00d8633997b0c610369dff76f053af39</sys_id><sys_mod_count>0</sys_mod_count><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-08 14:41:19</sys_updated_on><value>ui_action</value><variable display_value="Action Type">334ea2f153212110248dddeeff7b1255</variable></sys_variable_value><sys_variable_value action="INSERT_OR_UPDATE"><document>sys_atf_step</document><document_key>9dc8a33997b0c610369dff76f053af9a</document_key><order>50</order><sys_class_name>sys_variable_value</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-08 14:41:19</sys_created_on><sys_id>4cd8633997b0c610369dff76f053af38</sys_id><sys_mod_count>0</sys_mod_count><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-08 14:41:19</sys_updated_on><value>standard_ui</value><variable display_value="Form UI">535cb5ab53233300f06fddeeff7b1247</variable></sys_variable_value><sys_variable_value action="INSERT_OR_UPDATE"><document>sys_atf_step</document><document_key>9dc8a33997b0c610369dff76f053af9a</document_key><order>100</order><sys_class_name>sys_variable_value</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-08 14:41:19</sys_created_on><sys_id>84d8633997b0c610369dff76f053af39</sys_id><sys_mod_count>0</sys_mod_count><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-08 14:41:19</sys_updated_on><value>sys_script_fix</value><variable display_value="Table">3eee292353e0220002c6435723dc343c</variable></sys_variable_value><sys_variable_value action="INSERT_OR_UPDATE"><document>sys_atf_step</document><document_key>9dc8a33997b0c610369dff76f053af9a</document_key><order>400</order><sys_class_name>sys_variable_value</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-08 14:41:19</sys_created_on><sys_id>88d8633997b0c610369dff76f053af38</sys_id><sys_mod_count>0</sys_mod_count><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-08 14:41:19</sys_updated_on><value>239f93e187333200bb9b61fb97cb0b64</value><variable display_value="UI action">7c5f6d2353e0220002c6435723dc34f6</variable></sys_variable_value><sys_variable_value action="INSERT_OR_UPDATE"><document>sys_atf_step</document><document_key>9dc8a33997b0c610369dff76f053af9a</document_key><order>400</order><sys_class_name>sys_variable_value</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-08 14:41:19</sys_created_on><sys_id>c0d8633997b0c610369dff76f053af39</sys_id><sys_mod_count>0</sys_mod_count><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-08 14:41:19</sys_updated_on><value/><variable display_value="Declarative Action">51547e3953212110248dddeeff7b126b</variable></sys_variable_value><sys_variable_value action="INSERT_OR_UPDATE"><document>sys_atf_step</document><document_key>9dc8a33997b0c610369dff76f053af9a</document_key><order>500</order><sys_class_name>sys_variable_value</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-08 14:41:19</sys_created_on><sys_id>c4d8633997b0c610369dff76f053af38</sys_id><sys_mod_count>0</sys_mod_count><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-08 14:41:19</sys_updated_on><value/><variable display_value="Assert type">7600f16353e0220002c6435723dc34d5</variable></sys_variable_value></record_update>]]></payload>
+        <payload_hash>71301259</payload_hash>
+        <record_name>Click a UI Action</record_name>
+        <reverted_from/>
+        <source>932a9df597500210369dff76f053afd9</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:41:19</sys_created_on>
+        <sys_id>80d8633997b0c610369dff76f053af3c</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>18e1e82e9000000001</sys_recorded_at>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:41:19</sys_updated_on>
+        <type>Test Step</type>
+        <update_guid>84d8633962b0c610d5ca88cd5b2f063b</update_guid>
+        <update_guid_history>84d8633962b0c610d5ca88cd5b2f063b:71301259</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete/>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-08 14:45:28</sys_created_on>
+        <sys_db_object display_value="" name="sys_atf_step">sys_atf_step</sys_db_object>
+        <sys_id>5ee5188757ed4416b08756652e256564</sys_id>
+        <sys_metadata>9dc8a33997b0c610369dff76f053af9a</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Click a UI Action</sys_name>
+        <sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_parent/>
+        <sys_policy/>
+        <sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_scope_delete display_value="">137cff71858e4bf182a22564b6dec841</sys_scope_delete>
+        <sys_update_name>sys_atf_step_9dc8a33997b0c610369dff76f053af9a</sys_update_name>
+        <sys_update_version display_value="sys_atf_step_9dc8a33997b0c610369dff76f053af9a">80d8633997b0c610369dff76f053af3c</sys_update_version>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 14:45:28</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>

@@ -17,7 +17,8 @@ NestedLVLSync.PROPERTIES = {
     PUSHING_CREDENTIAL_ID: 'pushing.credential.id'
 };
 NestedLVLSync.prototype = {
-    initialize: function() {
+    initialize: function(process) {
+        this.process = process || {};
         this.payload = {};
         this.nestedLevel;
     },
@@ -48,6 +49,16 @@ NestedLVLSync.prototype = {
 
                         }
                         var searchGR = new GlideRecord(sourTable);
+                        if (sourTable.includes('cmdb_ci')) {
+                            if (this.process.lastCreated) {
+                                searchGR.orderByDesc('sys_created_on');
+                                searchGR.setLimit(1);
+                            }
+							if (this.process.lastUpdated) {
+                                searchGR.orderByDesc('sys_updated_on');
+                                searchGR.setLimit(1);
+                            }
+                        }
                         searchGR.query();
                         while (searchGR.next()) {
                             this.syncData(searchGR, sourTable, refTables);
@@ -279,13 +290,13 @@ NestedLVLSync.prototype = {
         <sys_created_by>magda.gursca</sys_created_by>
         <sys_created_on>2024-02-27 07:50:52</sys_created_on>
         <sys_id>f13aa2a6972c0210369dff76f053afd7</sys_id>
-        <sys_mod_count>300</sys_mod_count>
+        <sys_mod_count>309</sys_mod_count>
         <sys_name>NestedLVLSync</sys_name>
         <sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_policy/>
         <sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope>
         <sys_update_name>sys_script_include_f13aa2a6972c0210369dff76f053afd7</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2024-03-06 12:54:05</sys_updated_on>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-08 13:15:41</sys_updated_on>
     </sys_script_include>
 </record_update>

@@ -26,7 +26,7 @@ With roles: admin</description>
         <sys_updated_by>magda.gursca</sys_updated_by>
         <sys_updated_on>2024-03-07 13:37:34</sys_updated_on>
         <table>sys_user</table>
-        <test display_value="Create CMDB CI record and reference records">1fef8ea597f44610369dff76f053af9b</test>
+        <test display_value="Create CMDB CI and reference record">1fef8ea597f44610369dff76f053af9b</test>
         <timeout/>
         <warning_message/>
     </sys_atf_step>

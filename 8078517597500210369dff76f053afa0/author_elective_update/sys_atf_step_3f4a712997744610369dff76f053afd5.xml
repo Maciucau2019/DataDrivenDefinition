@@ -76,7 +76,7 @@ and State / Province = BIHOR</description>
     <sys_element_mapping action="DELETE" query="table=var__m_atf_input_variable_fcae4a935332120028bc29cac2dc340e^id=3f4a712997744610369dff76f053afd5"/>
     <sys_update_version action="INSERT_OR_UPDATE">
         <action>DELETE</action>
-        <application display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</application>
+        <application display_value="CMDB Data Syncronization">8078517597500210369dff76f053afa0</application>
         <file_path/>
         <instance_id>064ad2f9db47a410ad8dd7c8f49619ce</instance_id>
         <instance_name>dev107996</instance_name>
@@ -113,10 +113,10 @@ and State / Province = BIHOR</description><display_name>Set Field Values</displa
         <sys_metadata>3f4a712997744610369dff76f053afd5</sys_metadata>
         <sys_mod_count>0</sys_mod_count>
         <sys_name>Set Field Values</sys_name>
-        <sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_package display_value="CMDB Data Syncronization" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_parent/>
         <sys_policy/>
-        <sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_scope display_value="CMDB Data Syncronization">8078517597500210369dff76f053afa0</sys_scope>
         <sys_scope_delete display_value="">137cff71858e4bf182a22564b6dec841</sys_scope_delete>
         <sys_update_name>sys_atf_step_3f4a712997744610369dff76f053afd5</sys_update_name>
         <sys_update_version display_value="sys_atf_step_3f4a712997744610369dff76f053afd5">6b6bf1e997744610369dff76f053af69</sys_update_version>

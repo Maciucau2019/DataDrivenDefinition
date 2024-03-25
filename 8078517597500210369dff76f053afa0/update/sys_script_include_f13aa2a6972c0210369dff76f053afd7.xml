@@ -28,8 +28,8 @@ NestedLVLSync.prototype = {
      */
     pushData: function() {
         if (this.canPush()) {
-            var batchSize = gs.getProperty(NestedLVLSync.PROPERTIES.BATCHSIZE);
-            var batch = [];
+            var batchSize = parseInt(gs.getProperty(NestedLVLSync.PROPERTIES.BATCHSIZE));
+            var eventParms = {};
             var tableGR = new GlideRecord(NestedLVLSync.TABLE);
             tableGR.addQuery('u_active', true);
             tableGR.orderByDesc('u_order');
@@ -46,22 +46,39 @@ NestedLVLSync.prototype = {
                             if (keys.startsWith('refTable')) {
                                 refTables.push(cmdbTable[obj][keys]);
                             }
-
                         }
-                        var searchGR = new GlideRecord(sourTable);
-                        if (sourTable.includes('cmdb_ci')) {
-                            if (this.process.lastCreated) {
-                                searchGR.orderByDesc('sys_created_on');
-                                searchGR.setLimit(1);
-                            }
-							if (this.process.lastUpdated) {
-                                searchGR.orderByDesc('sys_updated_on');
-                                searchGR.setLimit(1);
-                            }
+                        var lastSysId = '';
+                        var gr1 = new GlideAggregate(sourTable);
+                        gr1.addAggregate('COUNT');
+                        gr1.query();
+                        if (gr1.next()) {
+                            var nrOfRecords = parseInt(gr1.getAggregate('COUNT'));
                         }
-                        searchGR.query();
-                        while (searchGR.next()) {
-                            this.syncData(searchGR, sourTable, refTables);
+                        this.setlogging('info', 'Number of records is ' + nrOfRecords);
+                        var totalProcessed = 0;
+                        while (totalProcessed < nrOfRecords) {
+                            var sysIds = [];
+                            var sourGR = new GlideRecord(sourTable);
+                            sourGR.orderBy('sys_id');
+                            if (lastSysId) {
+                                sourGR.addQuery('sys_id', '>', lastSysId);
+                            }
+                            sourGR.setLimit(batchSize);
+                            sourGR.query();
+                            while (sourGR.next()) {
+                                sysIds.push(sourGR.getUniqueValue());
+                                lastSysId = sourGR.getUniqueValue();
+                            }
+                            if (sysIds.length > 0) {
+                                eventParms.sourTable = sourTable;
+                                eventParms.nestedLevel = this.nestedLevel;
+                                eventParms.sysIds = JSON.stringify(sysIds);
+                                this.setlogging('info', 'JSON Obj for event is  ' + JSON.stringify(eventParms, "", 2));
+                                var gdt = new GlideDateTime();
+                                gdt.addSeconds(10);
+                                gs.eventQueueScheduled('NestedLVLSync.next.batch', sourGR, JSON.stringify(eventParms), JSON.stringify(refTables), gdt);
+                                totalProcessed += sysIds.length;
+                            }
                         }
                     }
                 } catch (e) {
@@ -88,11 +105,11 @@ NestedLVLSync.prototype = {
      * @returns {Object} An object representing the nested references.
      * 
      */
-    createMetaData: function(refTables, currentGR, currentNestedLevel) {
+    createMetaData: function(refTables, currentGR, currentNestedLevel, eventNestedLevel) {
         this.setlogging('info', "Starting createReferenceObject with nested level: " + currentNestedLevel);
 
         var referenceObject = {};
-        if (currentNestedLevel > this.nestedLevel) {
+        if (currentNestedLevel > eventNestedLevel) {
             return;
         }
         var fieldList = new GlideRecordUtil().getFields(currentGR);
@@ -105,7 +122,7 @@ NestedLVLSync.prototype = {
                 var refRecord = currentGR[fieldName].getRefRecord();
                 if (refRecord.isValidRecord()) {
                     var dataObject = this.createMetaData(refTables, refRecord, currentNestedLevel + 1);
-                    if (currentNestedLevel < this.nestedLevel) {
+                    if (currentNestedLevel < eventNestedLevel) {
                         var metaObject = {
                             sys_class_name: refRecord.getTableName(),
                             nestedLevel: currentNestedLevel + 1,
@@ -142,9 +159,9 @@ NestedLVLSync.prototype = {
      * @returns {void}
      * 
      */
-    syncData: function(cmdbGR, cmdbTableName, refTables) {
+    syncData: function(cmdbGR, cmdbTableName, refTables, eventNestedLevel) {
         try {
-            var masterData = this.createMetaData(refTables, cmdbGR, 0);
+            var masterData = this.createMetaData(refTables, cmdbGR, 0, eventNestedLevel);
             this.setlogging('info', "masterData: " + JSON.stringify(masterData, "", 2));
             this.processData(masterData, "");
             var url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbTableName + '?sysparm_query=correlation_id%' + cmdbGR.getUniqueValue();
@@ -153,7 +170,7 @@ NestedLVLSync.prototype = {
                 url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbTableName;
                 this.executeRESTCall(url, 'POST', this.payload, cmdbTableName);
             } else {
-                url = gs.getProperty(CMDBBatchSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbTableName + "/" + cmdbGR.getUniqueValue();
+                url = gs.getProperty(NestedLVLSync.PROPERTIES.TARGET_INSTANCE) + '/api/now/table/' + cmdbTableName + "/" + cmdbGR.getUniqueValue();
                 this.executeRESTCall(url, 'PUT', this.payload, cmdbTableName);
             }
         } catch (e) {
@@ -248,6 +265,7 @@ NestedLVLSync.prototype = {
         var response = request.execute();
         var responseBody = JSON.parse(response.getBody());
         var httpsStatus = response.getStatusCode();
+        gs.log('Response Body: ' + JSON.stringify(responseBody));
         if (method == 'GET' && responseBody.result.length == 0) {
             return null;
         }
@@ -290,13 +308,13 @@ NestedLVLSync.prototype = {
         <sys_created_by>magda.gursca</sys_created_by>
         <sys_created_on>2024-02-27 07:50:52</sys_created_on>
         <sys_id>f13aa2a6972c0210369dff76f053afd7</sys_id>
-        <sys_mod_count>309</sys_mod_count>
+        <sys_mod_count>372</sys_mod_count>
         <sys_name>NestedLVLSync</sys_name>
-        <sys_package display_value="Synchronize CMDB Data Between Instances" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_package display_value="CMDB Data Syncronization" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
         <sys_policy/>
-        <sys_scope display_value="Synchronize CMDB Data Between Instances">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_scope display_value="CMDB Data Syncronization">8078517597500210369dff76f053afa0</sys_scope>
         <sys_update_name>sys_script_include_f13aa2a6972c0210369dff76f053afd7</sys_update_name>
         <sys_updated_by>magda.gursca</sys_updated_by>
-        <sys_updated_on>2024-03-08 13:15:41</sys_updated_on>
+        <sys_updated_on>2024-03-25 16:25:17</sys_updated_on>
     </sys_script_include>
 </record_update>

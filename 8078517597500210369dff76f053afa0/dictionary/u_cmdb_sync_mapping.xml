@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><database>
-    <element db_object_id="536ea9e397104a10369dff76f053afee" label="Cmdb Sync Mapping" max_length="40" name="u_cmdb_sync_mapping" type="collection">
-        <element label="Source ID" max_length="40" name="u_source_sys_id" type="string"/>
-        <element label="Table Name" max_length="40" name="u_table_name" type="string"/>
-        <element label="Target ID" max_length="40" name="u_target_sys_id" type="string"/>
-    </element>
-</database>

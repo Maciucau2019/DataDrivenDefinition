@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element db_object_id="6e257ae747014610214aa9f8536d4316" label="Sync Data Definition" max_length="40" name="u_sync_data_definition" type="collection">
+        <element label="Active" max_length="40" name="u_active" type="boolean"/>
+        <element default="[{&quot;sourceTable&quot;:&quot;&quot;,&quot;refTable1&quot;:&quot;&quot;,&quot;refTable2&quot;:&quot;&quot;,&quot;refTable3&quot;:&quot;&quot;,&quot;refTable4&quot;:&quot;&quot;}]" label="Configuration" max_length="10000" name="u_configuration" type="string"/>
+        <element label="Description" max_length="5000" name="u_description" type="string"/>
+        <element label="Name" max_length="40" name="u_name" type="string"/>
+        <element label="Nested Level" max_length="40" name="u_nested_level" type="integer"/>
+        <element label="Order" max_length="40" name="u_order" type="integer"/>
+    </element>
+</database>

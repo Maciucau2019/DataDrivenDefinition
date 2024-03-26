@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl_role">
+    <sys_security_acl_role action="DELETE">
+        <sys_class_name>sys_security_acl_role</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-26 07:34:14</sys_created_on>
+        <sys_id>aba3f66747014610214aa9f8536d43b8</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>u_data_to_synchronize.cmdb_data_sync</sys_name>
+        <sys_package display_value="CMDB Data Syncronization" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="CMDB Data Syncronization">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_security_acl display_value="u_data_to_synchronize">e7a3f66747014610214aa9f8536d43b5</sys_security_acl>
+        <sys_update_name>sys_security_acl_role_aba3f66747014610214aa9f8536d43b8</sys_update_name>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-26 07:34:14</sys_updated_on>
+        <sys_user_role display_value="cmdb_data_sync" name="cmdb_data_sync">ca5e421a47498a10214aa9f8536d43dc</sys_user_role>
+    </sys_security_acl_role>
+    <sys_update_version action="INSERT_OR_UPDATE">
+        <action>DELETE</action>
+        <application display_value="CMDB Data Syncronization">8078517597500210369dff76f053afa0</application>
+        <file_path/>
+        <instance_id>d2180ddedb55ed143050ac44d4961963</instance_id>
+        <instance_name>dev158179</instance_name>
+        <name>sys_security_acl_role_aba3f66747014610214aa9f8536d43b8</name>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_security_acl_role"><sys_security_acl_role action="INSERT_OR_UPDATE"><sys_class_name>sys_security_acl_role</sys_class_name><sys_created_by>magda.gursca</sys_created_by><sys_created_on>2024-03-26 07:34:14</sys_created_on><sys_id>aba3f66747014610214aa9f8536d43b8</sys_id><sys_mod_count>0</sys_mod_count><sys_name>u_data_to_synchronize.cmdb_data_sync</sys_name><sys_package display_value="CMDB Data Syncronization" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package><sys_policy/><sys_scope display_value="CMDB Data Syncronization">8078517597500210369dff76f053afa0</sys_scope><sys_security_acl display_value="u_data_to_synchronize">e7a3f66747014610214aa9f8536d43b5</sys_security_acl><sys_update_name>sys_security_acl_role_aba3f66747014610214aa9f8536d43b8</sys_update_name><sys_updated_by>magda.gursca</sys_updated_by><sys_updated_on>2024-03-26 07:34:14</sys_updated_on><sys_user_role display_value="cmdb_data_sync" name="cmdb_data_sync">ca5e421a47498a10214aa9f8536d43dc</sys_user_role></sys_security_acl_role></record_update>]]></payload>
+        <payload_hash>-865299202</payload_hash>
+        <record_name>u_data_to_synchronize.cmdb_data_sync</record_name>
+        <reverted_from/>
+        <source>1f5e17d947018610214aa9f8536d43eb</source>
+        <source_table>sys_update_set</source_table>
+        <state>previous</state>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-26 07:34:14</sys_created_on>
+        <sys_id>e7a3f66747014610214aa9f8536d43bb</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_recorded_at>18e79ae5d5c0000001</sys_recorded_at>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-26 07:34:14</sys_updated_on>
+        <type>Access Roles</type>
+        <update_guid>eba3f66745014610d70735584590e7ba</update_guid>
+        <update_guid_history>eba3f66745014610d70735584590e7ba:-865299202</update_guid_history>
+    </sys_update_version>
+    <sys_metadata_delete action="INSERT_OR_UPDATE">
+        <sys_audit_delete display_value="u_data_to_synchronize.cmdb_data_sync">3015f6e747014610214aa9f8536d4342</sys_audit_delete>
+        <sys_class_name>sys_metadata_delete</sys_class_name>
+        <sys_created_by>magda.gursca</sys_created_by>
+        <sys_created_on>2024-03-26 07:40:20</sys_created_on>
+        <sys_db_object display_value="" name="sys_security_acl_role">sys_security_acl_role</sys_db_object>
+        <sys_id>bed2fa67ce5f4bdc8e9742eecdb80f71</sys_id>
+        <sys_metadata>aba3f66747014610214aa9f8536d43b8</sys_metadata>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>u_data_to_synchronize.cmdb_data_sync</sys_name>
+        <sys_package display_value="CMDB Data Syncronization" source="8078517597500210369dff76f053afa0">8078517597500210369dff76f053afa0</sys_package>
+        <sys_parent display_value="">e7a3f66747014610214aa9f8536d43b5</sys_parent>
+        <sys_policy/>
+        <sys_scope display_value="CMDB Data Syncronization">8078517597500210369dff76f053afa0</sys_scope>
+        <sys_scope_delete display_value="">137cff71858e4bf182a22564b6dec841</sys_scope_delete>
+        <sys_update_name>sys_security_acl_role_aba3f66747014610214aa9f8536d43b8</sys_update_name>
+        <sys_update_version display_value="sys_security_acl_role_aba3f66747014610214aa9f8536d43b8">e7a3f66747014610214aa9f8536d43bb</sys_update_version>
+        <sys_updated_by>magda.gursca</sys_updated_by>
+        <sys_updated_on>2024-03-26 07:40:20</sys_updated_on>
+    </sys_metadata_delete>
+</record_update>
